@@ -14,9 +14,19 @@ func Upload(actionname, groupname string, srcFilePath, desDirPath string) error 
 		return fmt.Errorf("srcFilePath[%s] or desDirPath[%s] empty", srcFilePath, desDirPath)
 	}
 
-	hg, au, err := getGroupAuthbyGroupname(groupname)
-	if err != nil {
-		return err
+	var hg types.Hostgroup
+	var au types.Auth
+	var err error
+	if strings.ContainsRune(groupname, '@') {
+		hg, au, err = getGroupAuthbyHostinfo(groupname)
+		if err != nil {
+			return err
+		}
+	} else {
+		hg, au, err = getGroupAuthbyGroupname(groupname)
+		if err != nil {
+			return err
+		}
 	}
 
 	cfg := options.GetCfg()

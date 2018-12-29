@@ -7,6 +7,7 @@ import (
 	"github.com/luckywinds/rshell/outputs"
 	"github.com/luckywinds/rshell/pkg/filters"
 	"github.com/luckywinds/rshell/types"
+	"strings"
 )
 
 func DO(actionname, groupname string, cmds []string) error {
@@ -14,9 +15,19 @@ func DO(actionname, groupname string, cmds []string) error {
 		return fmt.Errorf("cmds[%v] empty", cmds)
 	}
 
-	hg, au, err := getGroupAuthbyGroupname(groupname)
-	if err != nil {
-		return err
+	var hg types.Hostgroup
+	var au types.Auth
+	var err error
+	if strings.ContainsRune(groupname, '@') {
+		hg, au, err = getGroupAuthbyHostinfo(groupname)
+		if err != nil {
+			return err
+		}
+	} else {
+		hg, au, err = getGroupAuthbyGroupname(groupname)
+		if err != nil {
+			return err
+		}
 	}
 
 	cfg := options.GetCfg()
