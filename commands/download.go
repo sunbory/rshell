@@ -15,9 +15,19 @@ func Download(actionname, groupname string, srcFilePath, desDirPath string) erro
 		return fmt.Errorf("srcFilePath[%s] or desDirPath[%s] empty", srcFilePath, desDirPath)
 	}
 
-	hg, au, err := getGroupAuthbyGroupname(groupname)
-	if err != nil {
-		return err
+	var hg types.Hostgroup
+	var au types.Auth
+	var err error
+	if strings.ContainsRune(groupname, '@') {
+		hg, au, err = getGroupAuthbyHostinfo(groupname)
+		if err != nil {
+			return err
+		}
+	} else {
+		hg, au, err = getGroupAuthbyGroupname(groupname)
+		if err != nil {
+			return err
+		}
 	}
 
 	cfg := options.GetCfg()
@@ -46,7 +56,7 @@ func Download(actionname, groupname string, srcFilePath, desDirPath string) erro
 	for _, ip := range hg.Ips {
 		limit <- true
 		go func(groupname, host string, port int, user, pass, keyname, passphrase string, timeout int, ciphers []string, srcFilePath, desDirPath string) {
-			//fmt.Printf("%v %v %v %v %v %v %v %v %v %v\n", groupname, host, port, user, pass, keyname, passphrase, timeout, ciphers, cmds)
+			//fmt.Printf("%v %v %v %v %v %v %v %v %v %v %v\n", groupname, host, port, user, pass, keyname, passphrase, timeout, ciphers, srcFilePath, desDirPath)
 			if !strings.HasSuffix(desDirPath, "/") {
 				desDirPath = desDirPath + "/"
 			}
@@ -63,7 +73,7 @@ func Download(actionname, groupname string, srcFilePath, desDirPath string) erro
 			}
 			taskchs <- result
 			<-limit
-		}(groupname, ip, hg.Sshport, au.Username, au.Password, au.Privatekey, au.Passphrase, cfg.Tasktimeout, []string{}, srcFilePath, desDirPath)
+		}(hg.Groupname, ip, hg.Sshport, au.Username, au.Password, au.Privatekey, au.Passphrase, cfg.Tasktimeout, []string{}, srcFilePath, desDirPath)
 	}
 
 	outputs.Output(taskchs, hg)
