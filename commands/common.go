@@ -42,7 +42,7 @@ func getGroupAuthbyHostinfo(hostinfo string) (types.Hostgroup, types.Auth, error
 	}
 
 	hg := types.Hostgroup{
-		Groupname:  "TEMP",
+		Groupname:  "TEMPHOST",
 		Authmethod: authname,
 		Sshport:    port,
 		Hosts:      nil,
