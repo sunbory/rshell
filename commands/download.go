@@ -69,7 +69,7 @@ func Download(actionname, groupname string, srcFilePath, desDirPath string) erro
 			if err == nil {
 				result.Stdout = "DOWNLOAD Success [" + srcFilePath + " -> " + path.Join(desDirPath, hg.Groupname) + "] :\n" + strings.Join(sfs, "\n")
 			} else {
-				result.Stderr = "DOWNLOAD Failed [" + srcFilePath + " -> " + path.Join(desDirPath, hg.Groupname) + "] " + err.Error()
+				result.Stderr = "DOWNLOAD Failed [" + srcFilePath + " -> " + path.Join(desDirPath, hg.Groupname) + "] @" + err.Error()
 			}
 			taskchs <- result
 			<-limit
