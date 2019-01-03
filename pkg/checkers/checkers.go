@@ -4,6 +4,7 @@ import (
 	"github.com/luckywinds/rshell/types"
 	"github.com/scylladb/go-set/strset"
 	"net"
+	"regexp"
 )
 
 func IsDuplicate(ss []string) bool {
@@ -30,6 +31,20 @@ func IsIpv4(s string) bool {
 
 func CheckHostgroupSize(h types.Hostgroup, max int) bool {
 	if len(h.Ips) > max {
+		return false
+	}
+	return true
+}
+
+func CheckHostgroupName(name string) bool {
+	if ok, _ := regexp.MatchString("^[a-zA-Z0-9_-]+$", name); !ok {
+		return false
+	}
+	return true
+}
+
+func CheckAuthmethodName(name string) bool {
+	if ok, _ := regexp.MatchString("^[a-zA-Z0-9_-]+$", name); !ok {
 		return false
 	}
 	return true
