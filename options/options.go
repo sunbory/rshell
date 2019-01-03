@@ -176,6 +176,9 @@ func parseHostgroups(hgs Hostgroups) Hostgroups {
 
 	var hgmap = make(map[string]Hostgroup)
 	for _, value := range tmphg.Hgs {
+		if !checkers.CheckHostgroupName(value.Groupname) {
+			log.Fatalf("Hostgroup name [%s] illegal", value.Groupname)
+		}
 		hgmap[value.Groupname] = value
 	}
 	if len(tmphg.Hgs) != len(hgmap) {
@@ -248,6 +251,9 @@ func GetAuths() (Auths, map[string]Auth) {
 		log.Fatal("The auths empty.")
 	}
 	for _, value := range auths.As {
+		if !checkers.CheckAuthmethodName(value.Name) {
+			log.Fatalf("Authmethod name [%s] illegal", value.Name)
+		}
 		authsm[value.Name] = value
 	}
 	if len(auths.As) != len(authsm) {
