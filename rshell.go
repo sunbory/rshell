@@ -38,7 +38,7 @@ func main() {
 	}
 }
 
-var version = "5.5"
+var version = "5.6"
 func showIntro() {
 	fmt.Println(`
  ______     ______     __  __     ______     __         __
