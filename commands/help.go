@@ -7,7 +7,7 @@ func Help() {
 
 do HOSTGROUP cmd1; cmd2; cmd3
     --- Run cmds on HOSTGROUP use normal user
-sudo HOSTGROUP sudo cmd1; cmd2; cmd3
+sudo HOSTGROUP cmd1; cmd2; cmd3
     --- Run cmds on HOSTGROUP use root which auto change from normal user
 download HOSTGROUP srcFile desDir
     --- Download srcFile from HOSTGROUP to local desDir

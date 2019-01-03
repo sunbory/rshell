@@ -68,7 +68,7 @@ func Upload(actionname, groupname string, srcFilePath, desDirPath string) error 
 			if err == nil {
 				result.Stdout = "UPLOAD Success [" + srcFilePath + " -> " + desDirPath + "] :\n" + strings.Join(sfs, "\n")
 			} else {
-				result.Stderr = "UPLOAD Failed [" + srcFilePath + " -> " + desDirPath + "] " + err.Error()
+				result.Stderr = "UPLOAD Failed [" + srcFilePath + " -> " + desDirPath + "] @" + err.Error()
 			}
 			taskchs <- result
 			<-limit

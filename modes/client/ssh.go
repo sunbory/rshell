@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-var dialcache = cache.New(100 * time.Second, 120 * time.Second)
+var dialcache = cache.New(100*time.Second, 120*time.Second)
 
 func New(groupname, host string, port int, user, pass, keyname, passphrase string, timeout int, ciphers []string) (*ssh.Client, error) {
 	if groupname == "" {
@@ -21,9 +21,6 @@ func New(groupname, host string, port int, user, pass, keyname, passphrase strin
 	}
 	if pass == "" && keyname == "" {
 		return nil, fmt.Errorf("pass and keyname can not be empty")
-	}
-	if timeout < 0 || timeout > 600 {
-		return nil, fmt.Errorf("timeout[%d] illegal", timeout)
 	}
 	if len(ciphers) == 0 {
 		ciphers = []string{"aes128-ctr", "aes192-ctr", "aes256-ctr", "aes128-gcm@openssh.com", "arcfour256", "arcfour128", "aes128-cbc", "3des-cbc", "aes192-cbc", "aes256-cbc"}
@@ -62,7 +59,7 @@ func New(groupname, host string, port int, user, pass, keyname, passphrase strin
 	clientConfig := &ssh.ClientConfig{
 		User:    user,
 		Auth:    auth,
-		Timeout: time.Duration(timeout) * time.Second,
+		Timeout: 60 * time.Second,
 		Config: ssh.Config{
 			Ciphers: ciphers,
 		},
