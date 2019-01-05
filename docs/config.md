@@ -4,6 +4,8 @@
 
 > 当前目录下.rshell文件夹
 
+> 配置文件中的路径分隔符统一采用正斜杠/
+
 ## 系统配置
 
 > .rshell/cfg.yaml
@@ -35,7 +37,7 @@ updateserver:                                                        #The auto u
 
 ```
 authmethods:                                                         #The authmethod list
-- name: alpha-env-ttt-key-su                                         #The auth method name
+- name: alpha-env-ttt-key-su                                         #The auth method name, must match "^[a-zA-Z0-9_-]+$"
   username: ttt                                                      #The username of ssh login
   privatekey: ""                                                     #First auth method option[privatekey], default: ""
   passphrase: "aes"                                                  #First auth method option[passphrase], default: ""
@@ -53,7 +55,7 @@ authmethods:                                                         #The authme
 
 ```
 hostgroups:                                 #The hostgroup list
-- groupname: test-group03                   #The hostgroup name    
+- groupname: test-group03                   #The hostgroup name, must match "^[a-zA-Z0-9_-]+$"
   authmethod: alpha-env-root-pass           #The auth method name which must in authmethods list
   sshport: 22                               #The ssh connect port, default: ""
   groups:                                   #The group list, item must in hostgroups list

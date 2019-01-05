@@ -16,7 +16,7 @@
 \ \  __<   \ \___  \  \ \  __ \  \ \  __\   \ \ \____  \ \ \____
  \ \_\ \_\  \/\_____\  \ \_\ \_\  \ \_____\  \ \_____\  \ \_____\
   \/_/ /_/   \/_____/   \/_/\/_/   \/_____/   \/_____/   \/_____/
------- Rshell @5.0 Type "?" or "help" for more information. -----
+------ Rshell @5.6 Type "?" or "help" for more information. -----
 rshell:
 ```
 
@@ -26,26 +26,30 @@ rshell:
 
 ```
 rshell: ?
-Usage: <keywords> <hostgroup> <agruments>
+Usage: KEYWORDS HOSTGROUP AGRUMENTS
 
-do hostgroup cmd1; cmd2; cmd3
-    --- Run cmds on hostgroup use normal user
-sudo hostgroup sudo cmd1; cmd2; cmd3
-    --- Run cmds on hostgroup use root which auto change from normal user
-download hostgroup srcFile desDir
-    --- Download srcFile from hostgroup to local desDir
-upload hostgroup srcFile desDir
-    --- Upload srcFile from local to hostgroup desDir
+do HOSTGROUP cmd1; cmd2; cmd3
+    --- Run cmds on HOSTGROUP use normal user
+sudo HOSTGROUP cmd1; cmd2; cmd3
+    --- Run cmds on HOSTGROUP use root which auto change from normal user
+download HOSTGROUP srcFile desDir
+    --- Download srcFile from HOSTGROUP to local desDir
+upload HOSTGROUP srcFile desDir
+    --- Upload srcFile from local to HOSTGROUP desDir
 
 encrypt_aes cleartext_password
     --- Encrypt cleartext_password with aes 256 cfb
 decrypt_aes ciphertext_password
     --- Decrypt ciphertext_password with aes 256 cfb
-
 exit
     --- Exit rshell
 ?
     --- Help
+
+> Use HOSTGROUP[name@ip:port] as ip address for single host
+name: must in auth.yaml
+ip:   must be ipv4
+port: optional, default: 22
 ```
 
 #### 执行远程Shell命令
@@ -193,6 +197,22 @@ DOWNLOAD Success [tst/LICENSE -> tst/test-group01]
 HOST [192.168.31.63   ] =======================================================
 DOWNLOAD Success [tst/LICENSE -> tst/test-group01]
 ```
+
+#### 临时对某一个IP执行操作
+
+```
+rshell: do alpha-env-root-pass@192.168.31.63:22 whoami
+TASK [do@TEMPHOST                                       ] *********************
+HOST [192.168.31.63   ] =======================================================
+root
+
+```
+
+注：
+- alpha-env-root-pass为auth.yaml文件中已配置的name
+- IP地址必须是IPv4
+- 端口可忽略，默认采用22
+- 单IP操作支持do/sudo/download/upload操作
 
 #### 加解密密码
 
