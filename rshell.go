@@ -98,59 +98,79 @@ func interactiveRun() {
 			}
 			opts.Cfg.PromptString = "[" + opts.CurrentEnv.Authname + "@" + opts.CurrentEnv.Hostgroupname + ":" + strconv.Itoa(opts.CurrentEnv.Port) + "]# "
 		case strings.HasPrefix(line, "do "):
+			if opts.CurrentEnv.Authname == "" || opts.CurrentEnv.Hostgroupname == "" || opts.CurrentEnv.Port == 0 {
+				fmt.Printf("%v\n", "Please load correct env first")
+				commands.LoadHelp()
+				goto retry
+			}
 			_, c, err := utils.GetSSHArgs(line)
 			if err != nil {
 				fmt.Printf("%v\n", err.Error())
-				commands.Help()
+				commands.DoHelp()
 				goto retry
 			}
 			if err = commands.DO(*opts, "do", opts.CurrentEnv.Authname, opts.CurrentEnv.Hostgroupname, opts.CurrentEnv.Port, c); err != nil {
 				fmt.Printf("%v\n", err.Error())
-				commands.Help()
+				commands.DoHelp()
 				goto retry
 			}
 			for _, value := range c {
 				prompt.AddCmd(strings.Trim(value, " "))
 			}
 		case strings.HasPrefix(line, "sudo "):
+			if opts.CurrentEnv.Authname == "" || opts.CurrentEnv.Hostgroupname == "" || opts.CurrentEnv.Port == 0 {
+				fmt.Printf("%v\n", "Please load correct env first")
+				commands.LoadHelp()
+				goto retry
+			}
 			_, c, err := utils.GetSSHArgs(line)
 			if err != nil {
 				fmt.Printf("%v\n", err.Error())
-				commands.Help()
+				commands.SudoHelp()
 				goto retry
 			}
 			if err = commands.SUDO(*opts, "sudo", opts.CurrentEnv.Authname, opts.CurrentEnv.Hostgroupname, opts.CurrentEnv.Port, c); err != nil {
 				fmt.Printf("%v\n", err.Error())
-				commands.Help()
+				commands.SudoHelp()
 				goto retry
 			}
 			for _, value := range c {
 				prompt.AddCmd(strings.Trim(value, " "))
 			}
 		case strings.HasPrefix(line, "download "):
+			if opts.CurrentEnv.Authname == "" || opts.CurrentEnv.Hostgroupname == "" || opts.CurrentEnv.Port == 0 {
+				fmt.Printf("%v\n", "Please load correct env first")
+				commands.LoadHelp()
+				goto retry
+			}
 			_, sf, dd, err := utils.GetSFTPArgs(line)
 			if err != nil {
 				fmt.Printf("%v\n", err.Error())
-				commands.Help()
+				commands.DownloadHelp()
 				goto retry
 			}
 			if err = commands.Download(*opts, "download", opts.CurrentEnv.Authname, opts.CurrentEnv.Hostgroupname, opts.CurrentEnv.Port, sf, dd); err != nil {
 				fmt.Printf("%v\n", err.Error())
-				commands.Help()
+				commands.DownloadHelp()
 				goto retry
 			}
 			prompt.AddSrcFile(strings.Trim(sf, " "))
 			prompt.AddDesDir(strings.Trim(dd, " "))
 		case strings.HasPrefix(line, "upload "):
+			if opts.CurrentEnv.Authname == "" || opts.CurrentEnv.Hostgroupname == "" || opts.CurrentEnv.Port == 0 {
+				fmt.Printf("%v\n", "Please load correct env first")
+				commands.LoadHelp()
+				goto retry
+			}
 			_, sf, dd, err := utils.GetSFTPArgs(line)
 			if err != nil {
 				fmt.Printf("%v\n", err.Error())
-				commands.Help()
+				commands.UploadHelp()
 				goto retry
 			}
 			if err = commands.Upload(*opts, "upload", opts.CurrentEnv.Authname, opts.CurrentEnv.Hostgroupname, opts.CurrentEnv.Port, sf, dd); err != nil {
 				fmt.Printf("%v\n", err.Error())
-				commands.Help()
+				commands.UploadHelp()
 				goto retry
 			}
 			prompt.AddSrcFile(strings.Trim(sf, " "))
@@ -159,13 +179,13 @@ func interactiveRun() {
 			_, t, err := utils.GetCryptArgs(line)
 			if err != nil {
 				fmt.Printf("%v\n", err)
-				commands.Help()
+				commands.EncryptHelp()
 				goto retry
 			}
 			p, err := commands.Encrypt(t)
 			if err != nil {
 				fmt.Printf("%v\n", err)
-				commands.Help()
+				commands.EncryptHelp()
 				goto retry
 			}
 			fmt.Println(p)
@@ -173,13 +193,13 @@ func interactiveRun() {
 			_, t, err := utils.GetCryptArgs(line)
 			if err != nil {
 				fmt.Printf("%v\n", err)
-				commands.Help()
+				commands.DecryptHelp()
 				goto retry
 			}
 			p, err := commands.Decrypt(t)
 			if err != nil {
 				fmt.Printf("%v\n", err)
-				commands.Help()
+				commands.DecryptHelp()
 				goto retry
 			}
 			fmt.Println(p)

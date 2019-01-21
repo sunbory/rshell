@@ -45,13 +45,23 @@ var port int
 func GetLoadArgs(o options.Options, line string) (string, string, string, int, error) {
 	ks := strings.Fields(line)
 	if len(ks) < 2 {
-		return "", "", "", 22, fmt.Errorf("load arguments illegal")
+		return "", "", "", 0, fmt.Errorf("load arguments illegal")
 	}
 	for _, value := range ks[1:] {
 		if err := getLoadArgs(o, value); err != nil {
-			return "", "", "", 22, err
+			return "", "", "", 0, err
 		}
 	}
+
+	if hname == "" {
+		return "", "", "", 0, fmt.Errorf("load arguments illegal, %s", "host empty")
+	}
+	if checkers.IsIpv4(hname) {
+		if aname == "" || port == 0 {
+			return "", "", "", 0, fmt.Errorf("load arguments illegal, %s", "auth or port empty")
+		}
+	}
+
 	return ks[0], aname, hname, port, nil
 }
 
