@@ -48,6 +48,10 @@ func GetLoadArgs(o options.Options, line string) (string, string, string, int, e
 	if len(ks) < 2 {
 		return "", "", "", 0, fmt.Errorf("load arguments illegal")
 	}
+	aname = o.CurrentEnv.Authname
+	hname = o.CurrentEnv.Hostgroupname
+	port = o.CurrentEnv.Port
+
 	for _, value := range ks[1:] {
 		if err := getLoadArgs(o, value); err != nil {
 			return "", "", "", 0, err
