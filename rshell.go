@@ -45,7 +45,8 @@ func showIntro() {
 \ \  __<   \ \___  \  \ \  __ \  \ \  __\   \ \ \____  \ \ \____
  \ \_\ \_\  \/\_____\  \ \_\ \_\  \ \_____\  \ \_____\  \ \_____\
   \/_/ /_/   \/_____/   \/_/\/_/   \/_____/   \/_____/   \/_____/
------- Rshell @`+version+` Type "?" or "help" for more information. -----`)
+------ Rshell @`+version+` Type "?" or "help" for more information. -----
+{The Correct Step: 1.help -> 2.load -> 3.do/sudo/download/upload}`)
 }
 
 func interactiveRun() {
