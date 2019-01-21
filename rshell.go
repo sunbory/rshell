@@ -73,7 +73,7 @@ func interactiveRun() {
 			break
 		}
 
-		line = strings.TrimSpace(line)
+		line = strings.TrimLeft(line, " ")
 		switch {
 		case strings.HasPrefix(line, "load "):
 			_, a, h, p, err := utils.GetLoadArgs(*opts, line)
