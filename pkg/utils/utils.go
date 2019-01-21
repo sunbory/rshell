@@ -64,7 +64,7 @@ func GetLoadArgs(o options.Options, line string) (string, string, string, int, e
 		if port == 0 {
 			port = 22
 		}
-		prompt.AddHostgroup(strings.Trim(hname, " "))
+		prompt.AddCmd("-H" + strings.Trim(hname, " "))
 	}
 
 	return ks[0], aname, hname, port, nil
