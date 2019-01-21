@@ -79,7 +79,7 @@ func interactiveRun() {
 			_, a, h, p, err := utils.GetLoadArgs(*opts, line)
 			if err != nil {
 				fmt.Printf("%v\n", err.Error())
-				commands.Help()
+				commands.LoadHelp()
 				goto retry
 			}
 			if a == "" {
@@ -93,7 +93,7 @@ func interactiveRun() {
 			opts.CurrentEnv.Port = p
 			if err := options.SetEnv(opts.CurrentEnv); err != nil {
 				fmt.Printf("%v\n", err.Error())
-				commands.Help()
+				commands.LoadHelp()
 				goto retry
 			}
 			opts.Cfg.PromptString = "[" + opts.CurrentEnv.Authname + "@" + opts.CurrentEnv.Hostgroupname + ":" + strconv.Itoa(opts.CurrentEnv.Port) + "]# "
