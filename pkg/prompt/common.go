@@ -61,12 +61,4 @@ func init() {
 	AddOpt("-P")
 }
 
-var commonCmd = []string{
-	"date",
-	"ls",
-	"hostname",
-	"whoami",
-	"pwd",
-}
-
 var cfg types.Cfg
