@@ -76,7 +76,7 @@ func interactiveRun() {
 
 		line = strings.TrimLeft(line, " ")
 		switch {
-		case strings.HasPrefix(line, "load "):
+		case strings.HasPrefix(line, "load ") || line == "load":
 			_, a, h, p, err := utils.GetLoadArgs(*opts, line)
 			if err != nil {
 				fmt.Printf("%v\n", err.Error())
@@ -96,7 +96,7 @@ func interactiveRun() {
 				goto retry
 			}
 			opts.Cfg.PromptString = "[" + opts.CurrentEnv.Authname + "@" + opts.CurrentEnv.Hostgroupname + ":" + strconv.Itoa(opts.CurrentEnv.Port) + "]# "
-		case strings.HasPrefix(line, "do "):
+		case strings.HasPrefix(line, "do ") || line == "do":
 			if opts.CurrentEnv.Authname == "" || opts.CurrentEnv.Hostgroupname == "" || opts.CurrentEnv.Port == 0 {
 				fmt.Printf("%v\n", "Please load correct env first")
 				commands.LoadHelp()
@@ -118,7 +118,7 @@ func interactiveRun() {
 			for _, value := range c {
 				prompt.AddCmd(strings.Trim(value, " "))
 			}
-		case strings.HasPrefix(line, "sudo "):
+		case strings.HasPrefix(line, "sudo ") || line == "sudo":
 			if opts.CurrentEnv.Authname == "" || opts.CurrentEnv.Hostgroupname == "" || opts.CurrentEnv.Port == 0 {
 				fmt.Printf("%v\n", "Please load correct env first")
 				commands.LoadHelp()
@@ -140,7 +140,7 @@ func interactiveRun() {
 			for _, value := range c {
 				prompt.AddCmd(strings.Trim(value, " "))
 			}
-		case strings.HasPrefix(line, "download "):
+		case strings.HasPrefix(line, "download ") || line == "download":
 			if opts.CurrentEnv.Authname == "" || opts.CurrentEnv.Hostgroupname == "" || opts.CurrentEnv.Port == 0 {
 				fmt.Printf("%v\n", "Please load correct env first")
 				commands.LoadHelp()
@@ -161,7 +161,7 @@ func interactiveRun() {
 			}
 			prompt.AddSrcFile(strings.Trim(sf, " "))
 			prompt.AddDesDir(strings.Trim(dd, " "))
-		case strings.HasPrefix(line, "upload "):
+		case strings.HasPrefix(line, "upload ") || line == "upload":
 			if opts.CurrentEnv.Authname == "" || opts.CurrentEnv.Hostgroupname == "" || opts.CurrentEnv.Port == 0 {
 				fmt.Printf("%v\n", "Please load correct env first")
 				commands.LoadHelp()
@@ -182,7 +182,7 @@ func interactiveRun() {
 			}
 			prompt.AddSrcFile(strings.Trim(sf, " "))
 			prompt.AddDesDir(strings.Trim(dd, " "))
-		case strings.HasPrefix(line, "encrypt_aes "):
+		case strings.HasPrefix(line, "encrypt_aes ") || line == "encrypt_aes":
 			_, t, err := utils.GetCryptArgs(line)
 			if err != nil {
 				fmt.Printf("%v\n", err)
@@ -196,7 +196,7 @@ func interactiveRun() {
 				goto retry
 			}
 			fmt.Println(p)
-		case strings.HasPrefix(line, "decrypt_aes "):
+		case strings.HasPrefix(line, "decrypt_aes ") || line == "decrypt_aes":
 			_, t, err := utils.GetCryptArgs(line)
 			if err != nil {
 				fmt.Printf("%v\n", err)
