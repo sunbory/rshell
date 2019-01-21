@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/luckywinds/rshell/commands"
 	"github.com/luckywinds/rshell/options"
+	"github.com/luckywinds/rshell/pkg/checkers"
 	"github.com/luckywinds/rshell/pkg/prompt"
 	"github.com/luckywinds/rshell/pkg/update"
 	"github.com/luckywinds/rshell/pkg/utils"
@@ -82,11 +83,9 @@ func interactiveRun() {
 				commands.LoadHelp()
 				goto retry
 			}
-			if a == "" {
+			if !checkers.IsIpv4(h) {
 				a = opts.Hostgroupsm[h].Authmethod
-			}
-			if p == 0 {
-				p = 22
+				p = opts.Hostgroupsm[h].Sshport
 			}
 			opts.CurrentEnv.Authname = a
 			opts.CurrentEnv.Hostgroupname = h
