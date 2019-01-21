@@ -5,12 +5,13 @@ import (
 	"github.com/luckywinds/rshell/modes/sftp"
 	"github.com/luckywinds/rshell/options"
 	"github.com/luckywinds/rshell/outputs"
+	"github.com/luckywinds/rshell/pkg/checkers"
 	"github.com/luckywinds/rshell/types"
 	"path"
 	"strings"
 )
 
-func Download(actionname, groupname string, srcFilePath, desDirPath string) error {
+func Download(o options.Options, actionname, aname, hname string, port int, srcFilePath, desDirPath string) error {
 	if srcFilePath == "" || desDirPath == "" {
 		return fmt.Errorf("srcFilePath[%s] or desDirPath[%s] empty", srcFilePath, desDirPath)
 	}
@@ -18,19 +19,31 @@ func Download(actionname, groupname string, srcFilePath, desDirPath string) erro
 	var hg types.Hostgroup
 	var au types.Auth
 	var err error
-	if strings.ContainsRune(groupname, '@') {
-		hg, au, err = getGroupAuthbyHostinfo(groupname)
-		if err != nil {
-			return err
+
+	if checkers.IsIpv4(hname) {
+		hg = types.Hostgroup{
+			Groupname:  "TEMPHOST",
+			Authmethod: aname,
+			Sshport:    port,
+			Hosts:      nil,
+			Groups:     nil,
+			Hostranges: nil,
+			Ips:        []string{hname},
 		}
+		au = o.Authsm[aname]
 	} else {
-		hg, au, err = getGroupAuthbyGroupname(groupname)
-		if err != nil {
-			return err
+		hg = o.Hostgroupsm[hname]
+		if aname == "" {
+			au = o.Authsm[hg.Authmethod]
+		} else {
+			au = o.Authsm[aname]
+		}
+		if port != 0 {
+			hg.Sshport = port
 		}
 	}
 
-	cfg := options.GetCfg()
+	cfg := o.Cfg
 
 	if cfg.Passcrypttype != "" {
 		au.Password, err = getPlainPass(au.Password, cfg)

@@ -17,6 +17,18 @@ func AddHostgroup(hostgroup string) {
 	hset.Add(hostgroup)
 }
 
+var oset = strset.New()
+
+func AddOpt(opt string) {
+	oset.Add(opt)
+}
+
+var aset = strset.New()
+
+func AddAuth(auth string) {
+	aset.Add(auth)
+}
+
 var cset = strset.New()
 
 func AddCmd(cmd string) {
@@ -43,14 +55,10 @@ func init() {
 	AddKeyword("sudo")
 	AddKeyword("upload")
 	AddKeyword("download")
-}
-
-var commonCmd = []string{
-	"date",
-	"ls",
-	"hostname",
-	"whoami",
-	"pwd",
+	AddKeyword("load")
+	AddOpt("-A")
+	AddOpt("-H")
+	AddOpt("-P")
 }
 
 var cfg types.Cfg

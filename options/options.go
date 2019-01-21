@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/luckywinds/rshell/pkg/checkers"
+	"github.com/luckywinds/rshell/pkg/prompt"
 	. "github.com/luckywinds/rshell/types"
 	"gopkg.in/yaml.v2"
 	"html/template"
@@ -13,6 +14,30 @@ import (
 	"os"
 	"path"
 )
+
+type Options struct {
+	Cfg Cfg
+
+	Hostgroups Hostgroups
+	Hostgroupsm map[string]Hostgroup
+
+	Auths Auths
+	Authsm map[string]Auth
+
+	Tasks Tasks
+	Values map[string]interface{}
+
+	IsScriptMode bool
+
+	CurrentEnv CurrentEnv
+}
+
+type CurrentEnv struct {
+	Hostgroupname string
+	Authname string
+	Port int
+}
+
 
 var (
 	cfgFile   = path.Join(".rshell", "cfg.yaml")
@@ -54,6 +79,38 @@ func initCfg() {
 		log.Fatalf("YAML[%s] Unmarshal error: %v", cfgFile, err)
 	}
 }
+
+func New() *Options {
+	var cfg = GetCfg()
+	var auths, authsm = GetAuths()
+	var hostgroups, hostgroupsm = GetHostgroups()
+	var tasks, isScriptMode = GetTasks()
+
+	for key, _ := range authsm {
+		prompt.AddAuth("-A" + key)
+	}
+
+	for key, _ := range hostgroupsm {
+		prompt.AddHostgroup("-H" + key)
+	}
+
+	return &Options{
+		Cfg:              cfg,
+		Hostgroups:       hostgroups,
+		Hostgroupsm:      hostgroupsm,
+		Auths:            auths,
+		Authsm:           authsm,
+		Tasks:            tasks,
+		Values:           nil,
+		IsScriptMode:     isScriptMode,
+		CurrentEnv:       CurrentEnv{
+			Hostgroupname: "",
+			Authname:      "",
+			Port:          22,
+		},
+	}
+}
+
 func GetCfg() Cfg {
 	if cfg.Concurrency == 0 {
 		cfg.Concurrency = 6
@@ -336,4 +393,31 @@ func GetTasks() (Tasks, bool) {
 	} else {
 		return tasks, false
 	}
+}
+
+func LoadEnv() (CurrentEnv) {
+	var ce CurrentEnv
+	e, err := ioutil.ReadFile(".rshell/rshell.env")
+	if err != nil {
+		return CurrentEnv{}
+	}
+
+	if yaml.Unmarshal(e, &ce) != nil {
+		return CurrentEnv{}
+	}
+
+	return ce
+}
+
+func SetEnv(ce CurrentEnv) error {
+	d, err := yaml.Marshal(&ce)
+	if err != nil {
+		return fmt.Errorf("Dump env error: %v", err)
+	}
+
+	if err := ioutil.WriteFile(".rshell/rshell.env", d, os.ModeAppend); err != nil {
+		return fmt.Errorf("Set env error: %v", err)
+	}
+
+	return nil
 }
