@@ -5,12 +5,12 @@ import (
 	"github.com/luckywinds/rshell/modes/ssh"
 	"github.com/luckywinds/rshell/options"
 	"github.com/luckywinds/rshell/outputs"
+	"github.com/luckywinds/rshell/pkg/checkers"
 	"github.com/luckywinds/rshell/pkg/filters"
 	"github.com/luckywinds/rshell/types"
-	"strings"
 )
 
-func DO(actionname, groupname string, cmds []string) error {
+func DO(o options.Options, actionname, aname, hname string, port int, cmds []string) error {
 	if len(cmds) == 0 {
 		return fmt.Errorf("cmds[%v] empty", cmds)
 	}
@@ -18,19 +18,31 @@ func DO(actionname, groupname string, cmds []string) error {
 	var hg types.Hostgroup
 	var au types.Auth
 	var err error
-	if strings.ContainsRune(groupname, '@') {
-		hg, au, err = getGroupAuthbyHostinfo(groupname)
-		if err != nil {
-			return err
+
+	if checkers.IsIpv4(hname) {
+		hg = types.Hostgroup{
+			Groupname:  "TEMPHOST",
+			Authmethod: aname,
+			Sshport:    port,
+			Hosts:      nil,
+			Groups:     nil,
+			Hostranges: nil,
+			Ips:        []string{hname},
 		}
+		au = o.Authsm[aname]
 	} else {
-		hg, au, err = getGroupAuthbyGroupname(groupname)
-		if err != nil {
-			return err
+		hg = o.Hostgroupsm[hname]
+		if aname == "" {
+			au = o.Authsm[hg.Authmethod]
+		} else {
+			au = o.Authsm[aname]
+		}
+		if port != 0 {
+			hg.Sshport = port
 		}
 	}
 
-	cfg := options.GetCfg()
+	cfg := o.Cfg
 
 	for _, c := range cmds {
 		if filters.IsBlackCmd(c, cfg.BlackCmdList) {
@@ -76,7 +88,7 @@ func DO(actionname, groupname string, cmds []string) error {
 			}
 			taskchs <- result
 			<-limit
-		}(groupname, ip, hg.Sshport, au.Username, au.Password, au.Privatekey, au.Passphrase, cfg.Tasktimeout, []string{}, cmds)
+		}(hg.Groupname, ip, hg.Sshport, au.Username, au.Password, au.Privatekey, au.Passphrase, cfg.Tasktimeout, []string{}, cmds)
 	}
 
 	outputs.Output(taskchs, hg)

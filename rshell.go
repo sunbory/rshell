@@ -8,6 +8,7 @@ import (
 	"github.com/luckywinds/rshell/pkg/update"
 	"github.com/luckywinds/rshell/pkg/utils"
 	"log"
+	"strconv"
 	"strings"
 )
 
@@ -23,22 +24,19 @@ const (
 	SUDO        string = "sudo"
 )
 
-var cfg = options.GetCfg()
-var _, _ = options.GetAuths()
-var hostgroups, _ = options.GetHostgroups()
-var tasks, isScriptMode = options.GetTasks()
+var opts = options.New()
 
 func main() {
-	go update.Update(cfg, version)
+	go update.Update(opts.Cfg, version)
 
-	if !isScriptMode {
+	if !opts.IsScriptMode {
 		interactiveRun()
 	} else {
 		scriptRun()
 	}
 }
 
-var version = "5.6"
+var version = "6.0"
 func showIntro() {
 	fmt.Println(`
  ______     ______     __  __     ______     __         __
@@ -51,7 +49,12 @@ func showIntro() {
 
 func interactiveRun() {
 	showIntro()
-	l, err := prompt.New(cfg, hostgroups)
+	opts.CurrentEnv = options.LoadEnv()
+	if opts.CurrentEnv.Authname != "" && opts.CurrentEnv.Hostgroupname != "" && opts.CurrentEnv.Port != 0 {
+		opts.Cfg.PromptString = "[" + opts.CurrentEnv.Authname + "@" + opts.CurrentEnv.Hostgroupname + ":" + strconv.Itoa(opts.CurrentEnv.Port) + "]# "
+	}
+
+	l, err := prompt.New(opts.Cfg, opts.Hostgroups)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -59,7 +62,7 @@ func interactiveRun() {
 
 	for {
 	retry:
-		line, err := prompt.Prompt(l, cfg)
+		line, err := prompt.Prompt(l, opts.Cfg)
 		if err == prompt.ErrPromptAborted {
 			if len(line) == 0 {
 				break
@@ -72,14 +75,36 @@ func interactiveRun() {
 
 		line = strings.TrimSpace(line)
 		switch {
-		case strings.HasPrefix(line, "do "):
-			_, h, c, err := utils.GetSSHArgs(line)
+		case strings.HasPrefix(line, "load "):
+			_, a, h, p, err := utils.GetLoadArgs(*opts, line)
 			if err != nil {
 				fmt.Printf("%v\n", err.Error())
 				commands.Help()
 				goto retry
 			}
-			if err = commands.DO("do", h, c); err != nil {
+			if a == "" {
+				a = opts.Hostgroupsm[h].Authmethod
+			}
+			if p == 0 {
+				p = 22
+			}
+			opts.CurrentEnv.Authname = a
+			opts.CurrentEnv.Hostgroupname = h
+			opts.CurrentEnv.Port = p
+			if err := options.SetEnv(opts.CurrentEnv); err != nil {
+				fmt.Printf("%v\n", err.Error())
+				commands.Help()
+				goto retry
+			}
+			opts.Cfg.PromptString = "[" + opts.CurrentEnv.Authname + "@" + opts.CurrentEnv.Hostgroupname + ":" + strconv.Itoa(opts.CurrentEnv.Port) + "]# "
+		case strings.HasPrefix(line, "do "):
+			_, c, err := utils.GetSSHArgs(line)
+			if err != nil {
+				fmt.Printf("%v\n", err.Error())
+				commands.Help()
+				goto retry
+			}
+			if err = commands.DO(*opts, "do", opts.CurrentEnv.Authname, opts.CurrentEnv.Hostgroupname, opts.CurrentEnv.Port, c); err != nil {
 				fmt.Printf("%v\n", err.Error())
 				commands.Help()
 				goto retry
@@ -88,13 +113,13 @@ func interactiveRun() {
 				prompt.AddCmd(strings.Trim(value, " "))
 			}
 		case strings.HasPrefix(line, "sudo "):
-			_, h, c, err := utils.GetSSHArgs(line)
+			_, c, err := utils.GetSSHArgs(line)
 			if err != nil {
 				fmt.Printf("%v\n", err.Error())
 				commands.Help()
 				goto retry
 			}
-			if err = commands.SUDO("sudo", h, c); err != nil {
+			if err = commands.SUDO(*opts, "sudo", opts.CurrentEnv.Authname, opts.CurrentEnv.Hostgroupname, opts.CurrentEnv.Port, c); err != nil {
 				fmt.Printf("%v\n", err.Error())
 				commands.Help()
 				goto retry
@@ -103,13 +128,13 @@ func interactiveRun() {
 				prompt.AddCmd(strings.Trim(value, " "))
 			}
 		case strings.HasPrefix(line, "download "):
-			_, h, sf, dd, err := utils.GetSFTPArgs(line)
+			_, sf, dd, err := utils.GetSFTPArgs(line)
 			if err != nil {
 				fmt.Printf("%v\n", err.Error())
 				commands.Help()
 				goto retry
 			}
-			if err = commands.Download("download", h, sf, dd); err != nil {
+			if err = commands.Download(*opts, "download", opts.CurrentEnv.Authname, opts.CurrentEnv.Hostgroupname, opts.CurrentEnv.Port, sf, dd); err != nil {
 				fmt.Printf("%v\n", err.Error())
 				commands.Help()
 				goto retry
@@ -117,13 +142,13 @@ func interactiveRun() {
 			prompt.AddSrcFile(strings.Trim(sf, " "))
 			prompt.AddDesDir(strings.Trim(dd, " "))
 		case strings.HasPrefix(line, "upload "):
-			_, h, sf, dd, err := utils.GetSFTPArgs(line)
+			_, sf, dd, err := utils.GetSFTPArgs(line)
 			if err != nil {
 				fmt.Printf("%v\n", err.Error())
 				commands.Help()
 				goto retry
 			}
-			if err = commands.Upload("upload", h, sf, dd); err != nil {
+			if err = commands.Upload(*opts, "upload", opts.CurrentEnv.Authname, opts.CurrentEnv.Hostgroupname, opts.CurrentEnv.Port, sf, dd); err != nil {
 				fmt.Printf("%v\n", err.Error())
 				commands.Help()
 				goto retry
@@ -173,7 +198,7 @@ func interactiveRun() {
 }
 
 func scriptRun() {
-	for _, task := range tasks.Ts {
+	for _, task := range opts.Tasks.Ts {
 		if task.Name == "" || task.Hostgroup == "" {
 			log.Fatal("The task's name or hostgroup empty.")
 		}
@@ -186,21 +211,21 @@ func scriptRun() {
 			name := task.Name + "/" + stask.Name
 			if stask.Mode == SSH {
 				if stask.Sudo {
-					if err := commands.SUDO(name, task.Hostgroup, stask.Cmds); err != nil {
+					if err := commands.SUDO(*opts, name, "", task.Hostgroup, 0, stask.Cmds); err != nil {
 						log.Fatalf("ERROR: %s/%s/%s/%v", name, task.Hostgroup, SUDO, err)
 					}
 				} else {
-					if err := commands.DO(name, task.Hostgroup, stask.Cmds); err != nil {
+					if err := commands.DO(*opts, name, "", task.Hostgroup, 0, stask.Cmds); err != nil {
 						log.Fatalf("ERROR: %s/%s/%s/%v", name, task.Hostgroup, DO, err)
 					}
 				}
 			} else if stask.Mode == SFTP {
 				if stask.FtpType == DOWNLOAD {
-					if err := commands.Download(name, task.Hostgroup, stask.SrcFile, stask.DesDir); err != nil {
+					if err := commands.Download(*opts, name, "", task.Hostgroup, 0, stask.SrcFile, stask.DesDir); err != nil {
 						log.Fatalf("ERROR: %s/%s/%s/%v", name, task.Hostgroup, DOWNLOAD, err)
 					}
 				} else if stask.FtpType == UPLOAD {
-					if err := commands.Upload(name, task.Hostgroup, stask.SrcFile, stask.DesDir); err != nil {
+					if err := commands.Upload(*opts, name, "", task.Hostgroup, 0, stask.SrcFile, stask.DesDir); err != nil {
 						log.Fatalf("ERROR: %s/%s/%s/%v", name, task.Hostgroup, UPLOAD, err)
 					}
 				} else {
