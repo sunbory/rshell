@@ -101,6 +101,8 @@ func interactiveRun() {
 			if opts.CurrentEnv.Authname == "" || opts.CurrentEnv.Hostgroupname == "" || opts.CurrentEnv.Port == 0 {
 				fmt.Printf("%v\n", "Please load correct env first")
 				commands.LoadHelp()
+				fmt.Println()
+				commands.DoHelp()
 				goto retry
 			}
 			_, c, err := utils.GetSSHArgs(line)
@@ -121,6 +123,8 @@ func interactiveRun() {
 			if opts.CurrentEnv.Authname == "" || opts.CurrentEnv.Hostgroupname == "" || opts.CurrentEnv.Port == 0 {
 				fmt.Printf("%v\n", "Please load correct env first")
 				commands.LoadHelp()
+				fmt.Println()
+				commands.SudoHelp()
 				goto retry
 			}
 			_, c, err := utils.GetSSHArgs(line)
@@ -141,6 +145,8 @@ func interactiveRun() {
 			if opts.CurrentEnv.Authname == "" || opts.CurrentEnv.Hostgroupname == "" || opts.CurrentEnv.Port == 0 {
 				fmt.Printf("%v\n", "Please load correct env first")
 				commands.LoadHelp()
+				fmt.Println()
+				commands.DownloadHelp()
 				goto retry
 			}
 			_, sf, dd, err := utils.GetSFTPArgs(line)
@@ -160,6 +166,8 @@ func interactiveRun() {
 			if opts.CurrentEnv.Authname == "" || opts.CurrentEnv.Hostgroupname == "" || opts.CurrentEnv.Port == 0 {
 				fmt.Printf("%v\n", "Please load correct env first")
 				commands.LoadHelp()
+				fmt.Println()
+				commands.UploadHelp()
 				goto retry
 			}
 			_, sf, dd, err := utils.GetSFTPArgs(line)
