@@ -85,7 +85,7 @@ func getLoadArgs(o options.Options, a string) (err error){
 		hname = strings.TrimLeft(a, "-H")
 		if _, ok := o.Hostgroupsm[hname]; !ok {
 			if !checkers.IsIpv4(hname) {
-				return fmt.Errorf("%s", "Hostgroup name not found")
+				return fmt.Errorf("%s", "Host name illegal")
 			}
 		}
 	case strings.HasPrefix(a, "-P"):

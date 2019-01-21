@@ -53,6 +53,7 @@ func interactiveRun() {
 	opts.CurrentEnv = options.LoadEnv()
 	if opts.CurrentEnv.Authname != "" && opts.CurrentEnv.Hostgroupname != "" && opts.CurrentEnv.Port != 0 {
 		opts.Cfg.PromptString = "[" + opts.CurrentEnv.Authname + "@" + opts.CurrentEnv.Hostgroupname + ":" + strconv.Itoa(opts.CurrentEnv.Port) + "]# "
+		prompt.AddHostgroup("-H" + opts.CurrentEnv.Hostgroupname)
 	}
 
 	l, err := prompt.New(opts.Cfg, opts.Hostgroups)
