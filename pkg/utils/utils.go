@@ -5,6 +5,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/luckywinds/rshell/options"
 	"github.com/luckywinds/rshell/pkg/checkers"
+	"github.com/luckywinds/rshell/pkg/prompt"
 	"github.com/luckywinds/rshell/types"
 	"strconv"
 	"strings"
@@ -57,9 +58,13 @@ func GetLoadArgs(o options.Options, line string) (string, string, string, int, e
 		return "", "", "", 0, fmt.Errorf("load arguments illegal, %s", "host empty")
 	}
 	if checkers.IsIpv4(hname) {
-		if aname == "" || port == 0 {
-			return "", "", "", 0, fmt.Errorf("load arguments illegal, %s", "auth or port empty")
+		if aname == "" {
+			return "", "", "", 0, fmt.Errorf("load arguments illegal, %s", "auth empty")
 		}
+		if port == 0 {
+			port = 22
+		}
+		prompt.AddHostgroup(strings.Trim(hname, " "))
 	}
 
 	return ks[0], aname, hname, port, nil

@@ -34,7 +34,8 @@ func LoadHelp() {
 
     Examples:
     - load -Hhostgroup03
-    - load -Aalpha-env-root-pass -H192.168.31.63 -P22`)
+    - load -Aalpha-env-root-pass -H192.168.31.63
+    - load -Aalpha-env-root-pass -H192.168.31.63 -P23`)
 }
 
 func DoHelp() {
