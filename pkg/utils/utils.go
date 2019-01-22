@@ -79,20 +79,22 @@ func getLoadArgs(o options.Options, a string) (err error){
 	case strings.HasPrefix(a, "-A"):
 		aname = strings.TrimLeft(a, "-A")
 		if _, ok := o.Authsm[aname]; !ok {
-			return fmt.Errorf("%s", "Auth name not found")
+			return fmt.Errorf("auth name [%s] not found", a)
 		}
 	case strings.HasPrefix(a, "-H"):
 		hname = strings.TrimLeft(a, "-H")
 		if _, ok := o.Hostgroupsm[hname]; !ok {
 			if !checkers.IsIpv4(hname) {
-				return fmt.Errorf("%s", "Host name illegal")
+				return fmt.Errorf("host name [%s] illegal", a)
 			}
 		}
 	case strings.HasPrefix(a, "-P"):
 		port, err = strconv.Atoi(strings.TrimLeft(a, "-P"))
 		if err != nil {
-			return fmt.Errorf("%s", "Port number illegal")
+			return fmt.Errorf("port number [%s] illegal", a)
 		}
+	default:
+		return fmt.Errorf("argument [%s] illegal", a)
 	}
 	return nil
 }
