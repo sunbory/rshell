@@ -16,7 +16,8 @@
 \ \  __<   \ \___  \  \ \  __ \  \ \  __\   \ \ \____  \ \ \____
  \ \_\ \_\  \/\_____\  \ \_\ \_\  \ \_____\  \ \_____\  \ \_____\
   \/_/ /_/   \/_____/   \/_/\/_/   \/_____/   \/_____/   \/_____/
------- Rshell @5.6 Type "?" or "help" for more information. -----
+------ Rshell @6.0 Type "?" or "help" for more information. -----
+{The Correct Step: 1.help -> 2.load -> 3.do/sudo/download/upload}
 rshell:
 ```
 
@@ -25,31 +26,81 @@ rshell:
 #### 获取帮助
 
 ```
-rshell: ?
-Usage: KEYWORDS HOSTGROUP AGRUMENTS
+rshell: help
+load -A<auth> -H<host> -P<port>
+    --- Load current env(auth@host:port)
 
-do HOSTGROUP cmd1; cmd2; cmd3
-    --- Run cmds on HOSTGROUP use normal user
-sudo HOSTGROUP cmd1; cmd2; cmd3
-    --- Run cmds on HOSTGROUP use root which auto change from normal user
-download HOSTGROUP srcFile desDir
-    --- Download srcFile from HOSTGROUP to local desDir
-upload HOSTGROUP srcFile desDir
-    --- Upload srcFile from local to HOSTGROUP desDir
+    Tips:
+    - host，must in hosts.yaml or ipv4
+    - auth, optional if config with host in hosts.yaml, must in auth.yaml
+    - port, optional if config with host in hosts.yaml, default: 22
+
+    Examples:
+    - load -Hhostgroup03
+    - load -Aalpha-env-root-pass -H192.168.31.63
+    - load -Aalpha-env-root-pass -H192.168.31.63 -P23
+
+do cmd1;cmd2;cmd3
+    --- Run cmds on targets as normal user
+
+    Examples:
+    - do pwd
+    - do pwd;whoami;date
+
+sudo cmd1;cmd2;cmd3
+    --- Run cmds on targets as root which auto change from normal user
+
+    Examples:
+    - sudo pwd
+    - sudo pwd;whoami;date
+
+download srcFile desDir
+    --- Download srcFile from targets to local desDir as normal user
+
+    Examples:
+    - download .bashrc .
+
+upload srcFile desDir
+    --- Upload srcFile from local to targets desDir as normal user
+
+    Examples:
+    - upload README.md .
 
 encrypt_aes cleartext_password
     --- Encrypt cleartext_password with aes 256 cfb
+
+    Examples:
+    - encrypt_aes Cloud12#$
+
 decrypt_aes ciphertext_password
     --- Decrypt ciphertext_password with aes 256 cfb
+
+    Examples:
+    - decrypt_aes 1c15b86d686758158d5fd9551c0ccca6168a2c80f149c38bca
+
 exit
     --- Exit rshell
 ?
     --- Help
+```
 
-> Use HOSTGROUP[name@ip:port] as ip address for single host
-name: must in auth.yaml
-ip:   must be ipv4
-port: optional, default: 22
+#### 加载环境信息
+
+- 加载或切换主机组
+
+```
+rshell: load -Htest-group01
+[alpha-env-ttt-key-su@test-group01:22]#load -Htest-group02
+[alpha-env-root-pass@test-group02:22]#
+
+```
+
+- 切换至特定IP地址
+
+```
+[alpha-env-root-pass@test-group02:22]# load -Aalpha-env-root-pass -H192.168.31.63
+[alpha-env-root-pass@192.168.31.63:22]# load -Aalpha-env-root-pass -H192.168.31.63 -P23
+[alpha-env-root-pass@192.168.31.63:23]#
 ```
 
 #### 执行远程Shell命令
@@ -57,11 +108,8 @@ port: optional, default: 22
 - 以普通用户执行单条命令
 
 ```
-rshell: do test-group01 whoami
-TASK [do@test-group01               ] *****************************************
-HOST [192.168.31.37   ] =======================================================
-ttt
-
+[alpha-env-ttt-key-su@test-group01:22]# do whoami;
+TASK [do@test-group01                                   ] *********************
 HOST [192.168.31.63   ] =======================================================
 ttt
 
@@ -70,68 +118,40 @@ ttt
 - 以普通用户执行多条命令
 
 ```
-rshell: do test-group01 whoami;date;pwd;echo 123;date;
-TASK [do@test-group01               ] *****************************************
-HOST [192.168.31.37   ] =======================================================
-ttt
-Mon Dec  3 20:25:40 CST 2018
-/home/ttt
-123
-Mon Dec  3 20:25:40 CST 2018
-
+[alpha-env-ttt-key-su@test-group01:22]# do whoami;date;pwd;
+TASK [do@test-group01                                   ] *********************
 HOST [192.168.31.63   ] =======================================================
 ttt
-Mon Dec  3 20:22:38 CST 2018
+Mon Jan 21 19:58:31 CST 2019
 /home/ttt
-123
-Mon Dec  3 20:22:38 CST 2018
-
 ```
 
 - 自动切换root用户并执行单条命令
 
 ```
-rshell: sudo test-group01 whoami
-TASK [sudo@test-group01             ] *****************************************
-HOST [192.168.31.37   ] =======================================================
-root
-Last login: Mon Dec  3 20:26:42 CST 2018
-
-STDERR =>
-Password:
+[alpha-env-ttt-key-su@test-group01:22]# sudo whoami
+TASK [sudo@test-group01                                 ] *********************
 HOST [192.168.31.63   ] =======================================================
 root
-Last login: Mon Dec  3 20:23:38 CST 2018
+Last login: Mon Jan 21 19:58:49 CST 2019
 
 STDERR =>
-Password:
+Password: 
 ```
 
 - 自动切换root用户并执行多条命令
 
 ```
-rshell: sudo test-group01 whoami;date;pwd;echo 123;date;
-TASK [sudo@test-group01             ] *****************************************
+[alpha-env-ttt-key-su@test-group01:22]# sudo whoami;pwd;date;
+TASK [sudo@test-group01                                 ] *********************
 HOST [192.168.31.63   ] =======================================================
 root
-Mon Dec  3 20:24:44 CST 2018
 /root
-123
-Mon Dec  3 20:24:44 CST 2018
-Last login: Mon Dec  3 20:24:02 CST 2018
+Mon Jan 21 19:58:49 CST 2019
+Last login: Mon Jan 21 19:45:44 CST 2019
 
 STDERR =>
-Password:
-HOST [192.168.31.37   ] =======================================================
-root
-Mon Dec  3 20:27:47 CST 2018
-/root
-123
-Mon Dec  3 20:27:47 CST 2018
-Last login: Mon Dec  3 20:27:06 CST 2018
-
-STDERR =>
-Password:
+Password: 
 ```
 
 #### 执行远程上传下载
@@ -143,12 +163,11 @@ Password:
 > 文件需要已经存在
 
 ```
-rshell: upload test-group01 LICENSE .
-TASK [upload@test-group01           ] *****************************************
-HOST [192.168.31.37   ] =======================================================
-UPLOAD Success [LICENSE -> ./]
+[alpha-env-ttt-key-su@test-group01:22]# upload rshell.exe .
+TASK [upload@test-group01                               ] *********************
 HOST [192.168.31.63   ] =======================================================
-UPLOAD Success [LICENSE -> ./]
+UPLOAD Success [rshell.exe -> ./] :
+rshell.exe
 ```
 
 - 上传文件到特定目录
@@ -156,20 +175,11 @@ UPLOAD Success [LICENSE -> ./]
 > 文件需要已经存在，目录需要已经存在并且具有用户操作权限
 
 ```
-rshell: upload test-group01 LICENSE /home/ttt/tst
-TASK [upload@test-group01           ] *****************************************
+[alpha-env-ttt-key-su@test-group01:22]# upload rshell.exe /home/ttt
+TASK [upload@test-group01                               ] *********************
 HOST [192.168.31.63   ] =======================================================
-UPLOAD Success [LICENSE -> /home/ttt/tst/]
-HOST [192.168.31.37   ] =======================================================
-UPLOAD Success [LICENSE -> /home/ttt/tst/]
-rshell: do test-group01 ls /home/ttt/tst
-TASK [do@test-group01               ] *****************************************
-HOST [192.168.31.37   ] =======================================================
-LICENSE
-
-HOST [192.168.31.63   ] =======================================================
-LICENSE
-
+UPLOAD Success [rshell.exe -> /home/ttt/] :
+rshell.exe
 ```
 
 - 下载文件到当前目录
@@ -177,12 +187,11 @@ LICENSE
 > 文件需要已经存在
 
 ```
-rshell: download test-group01 tst/LICENSE .
-TASK [download@test-group01         ] *****************************************
-HOST [192.168.31.37   ] =======================================================
-DOWNLOAD Success [tst/LICENSE -> test-group01]
+[alpha-env-ttt-key-su@test-group01:22]# download /home/ttt/rshell.exe .
+TASK [download@test-group01                             ] *********************
 HOST [192.168.31.63   ] =======================================================
-DOWNLOAD Success [tst/LICENSE -> test-group01]
+DOWNLOAD Success [/home/ttt/rshell.exe -> test-group01] :
+/home/ttt/rshell.exe
 ```
 
 - 下载文件到特定目录
@@ -190,29 +199,12 @@ DOWNLOAD Success [tst/LICENSE -> test-group01]
 > 文件需要已经存在
 
 ```
-rshell: download test-group01 tst/LICENSE ./tst
-TASK [download@test-group01         ] *****************************************
-HOST [192.168.31.37   ] =======================================================
-DOWNLOAD Success [tst/LICENSE -> tst/test-group01]
+[alpha-env-ttt-key-su@test-group01:22]# download /home/ttt/rshell.exe /tmp
+TASK [download@test-group01                             ] *********************
 HOST [192.168.31.63   ] =======================================================
-DOWNLOAD Success [tst/LICENSE -> tst/test-group01]
+DOWNLOAD Success [/home/ttt/rshell.exe -> /tmp/test-group01] :
+/home/ttt/rshell.exe
 ```
-
-#### 临时对某一个IP执行操作
-
-```
-rshell: do alpha-env-root-pass@192.168.31.63:22 whoami
-TASK [do@TEMPHOST                                       ] *********************
-HOST [192.168.31.63   ] =======================================================
-root
-
-```
-
-注：
-- alpha-env-root-pass为auth.yaml文件中已配置的name
-- IP地址必须是IPv4
-- 端口可忽略，默认采用22
-- 单IP操作支持do/sudo/download/upload操作
 
 #### 加解密密码
 
