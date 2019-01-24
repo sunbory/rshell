@@ -11,7 +11,7 @@ var ACTION = "download"
 
 func Help() {
 	fmt.Println(`download srcFile desDir
-    --- Download srcFile from targets to local desDir as normal user
+    --- Download srcFile from TARGETS to LOCAL desDir as normal user
 
     Examples:
     - download .bashrc .`)

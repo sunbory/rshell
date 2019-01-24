@@ -11,7 +11,7 @@ var ACTION = "upload"
 
 func Help() {
 	fmt.Println(`upload srcFile desDir
-    --- Upload srcFile from local to targets desDir as normal user
+    --- Upload srcFile from LOCAL to TARGETS desDir as normal user
 
     Examples:
     - upload README.md .`)

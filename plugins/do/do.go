@@ -11,7 +11,7 @@ var ACTION = "do"
 
 func Help() {
 	fmt.Println(`cmd1;cmd2;cmd3
-    --- Run cmds on targets as normal user
+    --- Run cmds on TARGETS as normal user
 
     Examples:
     - pwd
