@@ -16,8 +16,8 @@
 \ \  __<   \ \___  \  \ \  __ \  \ \  __\   \ \ \____  \ \ \____
  \ \_\ \_\  \/\_____\  \ \_\ \_\  \ \_____\  \ \_____\  \ \_____\
   \/_/ /_/   \/_____/   \/_/\/_/   \/_____/   \/_____/   \/_____/
------- Rshell @6.0 Type "?" or "help" for more information. -----
-{The Correct Step: 1.help -> 2.load -> 3.do/sudo/download/upload}
+------ Rshell @7.0 Type "?" or "help" for more information. -----
+{The Correct Step: 1.help -> 2.load -> 3.*/sudo/download/upload}
 rshell:
 ```
 
@@ -40,43 +40,43 @@ load -A<auth> -H<host> -P<port>
     - load -Aalpha-env-root-pass -H192.168.31.63
     - load -Aalpha-env-root-pass -H192.168.31.63 -P23
 
-do cmd1;cmd2;cmd3
-    --- Run cmds on targets as normal user
+cmd1;cmd2;cmd3
+    --- Run cmds on TARGETS as normal user
 
     Examples:
-    - do pwd
-    - do pwd;whoami;date
+    - pwd
+    - pwd;whoami;date
 
 sudo cmd1;cmd2;cmd3
-    --- Run cmds on targets as root which auto change from normal user
+    --- Run cmds on TARGETS as root which auto change from normal user
 
     Examples:
     - sudo pwd
     - sudo pwd;whoami;date
 
 download srcFile desDir
-    --- Download srcFile from targets to local desDir as normal user
+    --- Download srcFile from TARGETS to LOCAL desDir as normal user
 
     Examples:
     - download .bashrc .
 
 upload srcFile desDir
-    --- Upload srcFile from local to targets desDir as normal user
+    --- Upload srcFile from LOCAL to TARGETS desDir as normal user
 
     Examples:
     - upload README.md .
 
-encrypt_aes cleartext_password
+encrypt cleartext_password
     --- Encrypt cleartext_password with aes 256 cfb
 
     Examples:
-    - encrypt_aes Cloud12#$
+    - encrypt Cloud12#$
 
-decrypt_aes ciphertext_password
+decrypt ciphertext_password
     --- Decrypt ciphertext_password with aes 256 cfb
 
     Examples:
-    - decrypt_aes 1c15b86d686758158d5fd9551c0ccca6168a2c80f149c38bca
+    - decrypt 1c15b86d686758158d5fd9551c0ccca6168a2c80f149c38bca
 
 exit
     --- Exit rshell
@@ -108,7 +108,7 @@ rshell: load -Htest-group01
 - 以普通用户执行单条命令
 
 ```
-[alpha-env-ttt-key-su@test-group01:22]# do whoami;
+[alpha-env-ttt-key-su@test-group01:22]# whoami;
 TASK [do@test-group01                                   ] *********************
 HOST [192.168.31.63   ] =======================================================
 ttt
@@ -118,22 +118,22 @@ ttt
 - 以普通用户执行多条命令
 
 ```
-[alpha-env-ttt-key-su@test-group01:22]# do whoami;date;pwd;
+[alpha-env-ttt-key-su@test-group01:22]# whoami;date;pwd;
 TASK [do@test-group01                                   ] *********************
 HOST [192.168.31.63   ] =======================================================
 ttt
-Mon Jan 21 19:58:31 CST 2019
+Thu Jan 24 18:35:14 CST 2019
 /home/ttt
 ```
 
 - 自动切换root用户并执行单条命令
 
 ```
-[alpha-env-ttt-key-su@test-group01:22]# sudo whoami
+[alpha-env-ttt-key-su@test-group01:22]# sudo whoami;
 TASK [sudo@test-group01                                 ] *********************
 HOST [192.168.31.63   ] =======================================================
 root
-Last login: Mon Jan 21 19:58:49 CST 2019
+Last login: Thu Jan 24 18:20:47 CST 2019
 
 STDERR =>
 Password: 
@@ -147,8 +147,8 @@ TASK [sudo@test-group01                                 ] *********************
 HOST [192.168.31.63   ] =======================================================
 root
 /root
-Mon Jan 21 19:58:49 CST 2019
-Last login: Mon Jan 21 19:45:44 CST 2019
+Thu Jan 24 18:35:42 CST 2019
+Last login: Thu Jan 24 18:35:26 CST 2019
 
 STDERR =>
 Password: 
@@ -166,7 +166,7 @@ Password:
 [alpha-env-ttt-key-su@test-group01:22]# upload rshell.exe .
 TASK [upload@test-group01                               ] *********************
 HOST [192.168.31.63   ] =======================================================
-UPLOAD Success [rshell.exe -> ./] :
+SUCCESS [rshell.exe -> ./] :
 rshell.exe
 ```
 
@@ -178,7 +178,7 @@ rshell.exe
 [alpha-env-ttt-key-su@test-group01:22]# upload rshell.exe /home/ttt
 TASK [upload@test-group01                               ] *********************
 HOST [192.168.31.63   ] =======================================================
-UPLOAD Success [rshell.exe -> /home/ttt/] :
+SUCCESS [rshell.exe -> /home/ttt/] :
 rshell.exe
 ```
 
@@ -190,7 +190,7 @@ rshell.exe
 [alpha-env-ttt-key-su@test-group01:22]# download /home/ttt/rshell.exe .
 TASK [download@test-group01                             ] *********************
 HOST [192.168.31.63   ] =======================================================
-DOWNLOAD Success [/home/ttt/rshell.exe -> test-group01] :
+SUCCESS [/home/ttt/rshell.exe -> ./] :
 /home/ttt/rshell.exe
 ```
 
@@ -202,7 +202,7 @@ DOWNLOAD Success [/home/ttt/rshell.exe -> test-group01] :
 [alpha-env-ttt-key-su@test-group01:22]# download /home/ttt/rshell.exe /tmp
 TASK [download@test-group01                             ] *********************
 HOST [192.168.31.63   ] =======================================================
-DOWNLOAD Success [/home/ttt/rshell.exe -> /tmp/test-group01] :
+SUCCESS [/home/ttt/rshell.exe -> /tmp/] :
 /home/ttt/rshell.exe
 ```
 
@@ -213,15 +213,15 @@ DOWNLOAD Success [/home/ttt/rshell.exe -> /tmp/test-group01] :
 - 加密
 
 ```
-rshell: encrypt_aes cleartext_password
-4ee4b855095dd6607a463b24cfc9438654d4e9b0af4b845ffc9340e70d8d98b2d587
+[alpha-env-ttt-key-su@test-group01:22]# encrypt Huawei@123
+766b9f12486f29f925626fb65a60da0fd5f6827859ac102938d7
 ```
 
 - 解密
 
 ```
-rshell: decrypt_aes 4ee4b855095dd6607a463b24cfc9438654d4e9b0af4b845ffc9340e70d8d98b2d587
-cleartext_password
+[alpha-env-ttt-key-su@test-group01:22]# decrypt 766b9f12486f29f925626fb65a60da0fd5f6827859ac102938d7
+Huawei@123
 ```
 
 #### 退出
