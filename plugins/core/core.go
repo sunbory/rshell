@@ -10,7 +10,6 @@ import (
 	"github.com/luckywinds/rshell/pkg/crypt"
 	"github.com/luckywinds/rshell/pkg/filters"
 	"github.com/luckywinds/rshell/types"
-	"path"
 	"strings"
 )
 
@@ -144,9 +143,9 @@ func RunSftpCommands(Concurrency int, actionname, actiontype string, au types.Au
 			result.Groupname = groupname
 			result.Hostaddr = host
 			if err == nil {
-				result.Stdout = "DOWNLOAD Success [" + srcFilePath + " -> " + path.Join(desDirPath, hg.Groupname) + "] :\n" + strings.Join(sfs, "\n")
+				result.Stdout = "SUCCESS [" + srcFilePath + " -> " + desDirPath + "] :\n" + strings.Join(sfs, "\n")
 			} else {
-				result.Stderr = "DOWNLOAD Failed [" + srcFilePath + " -> " + path.Join(desDirPath, hg.Groupname) + "] @" + err.Error()
+				result.Stderr = "FAILED [" + srcFilePath + " -> " + desDirPath + "] @" + err.Error()
 			}
 			taskchs <- result
 			<-limit
