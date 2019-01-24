@@ -11,7 +11,7 @@ var ACTION = "sudo"
 
 func Help() {
 	fmt.Println(`sudo cmd1;cmd2;cmd3
-    --- Run cmds on targets as root which auto change from normal user
+    --- Run cmds on TARGETS as root which auto change from normal user
 
     Examples:
     - sudo pwd
