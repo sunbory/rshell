@@ -147,7 +147,7 @@ func interactiveRun() {
 				fmt.Println(ret)
 			}
 		case line == "":
-		case line == "?":
+		case line == "?" || line == "help":
 			load.Help()
 			fmt.Println()
 			do.Help()
