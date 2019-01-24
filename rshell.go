@@ -2,12 +2,17 @@ package main
 
 import (
 	"fmt"
-	"github.com/luckywinds/rshell/commands"
 	"github.com/luckywinds/rshell/options"
 	"github.com/luckywinds/rshell/pkg/checkers"
 	"github.com/luckywinds/rshell/pkg/prompt"
 	"github.com/luckywinds/rshell/pkg/update"
-	"github.com/luckywinds/rshell/pkg/utils"
+	"github.com/luckywinds/rshell/plugins/decrypt"
+	"github.com/luckywinds/rshell/plugins/do"
+	"github.com/luckywinds/rshell/plugins/download"
+	"github.com/luckywinds/rshell/plugins/encrypt"
+	"github.com/luckywinds/rshell/plugins/load"
+	"github.com/luckywinds/rshell/plugins/sudo"
+	"github.com/luckywinds/rshell/plugins/upload"
 	"log"
 	"strconv"
 	"strings"
@@ -46,7 +51,7 @@ func showIntro() {
  \ \_\ \_\  \/\_____\  \ \_\ \_\  \ \_____\  \ \_____\  \ \_____\
   \/_/ /_/   \/_____/   \/_/\/_/   \/_____/   \/_____/   \/_____/
 ------ Rshell @`+version+` Type "?" or "help" for more information. -----
-{The Correct Step: 1.help -> 2.load -> 3.do/sudo/download/upload}`)
+{The Correct Step: 1.help -> 2.load -> 3.*/sudo/download/upload}`)
 }
 
 func interactiveRun() {
@@ -64,7 +69,6 @@ func interactiveRun() {
 	defer l.Close()
 
 	for {
-	retry:
 		line, err := prompt.Prompt(l, opts.Cfg)
 		if err == prompt.ErrPromptAborted {
 			if len(line) == 0 {
@@ -79,149 +83,101 @@ func interactiveRun() {
 		line = strings.TrimLeft(line, " ")
 		switch {
 		case strings.HasPrefix(line, "load ") || line == "load":
-			_, a, h, p, err := utils.GetLoadArgs(*opts, line)
+			a, h, p, err := load.Command(*opts, line)
 			if err != nil {
-				fmt.Printf("%v\n", err.Error())
-				commands.LoadHelp()
-				goto retry
-			}
-			if !checkers.IsIpv4(h) {
-				a = opts.Hostgroupsm[h].Authmethod
-				p = opts.Hostgroupsm[h].Sshport
-			}
-			opts.CurrentEnv.Authname = a
-			opts.CurrentEnv.Hostgroupname = h
-			opts.CurrentEnv.Port = p
-			if err := options.SetEnv(opts.CurrentEnv); err != nil {
-				fmt.Printf("%v\n", err.Error())
-				commands.LoadHelp()
-				goto retry
-			}
-			opts.Cfg.PromptString = "[" + opts.CurrentEnv.Authname + "@" + opts.CurrentEnv.Hostgroupname + ":" + strconv.Itoa(opts.CurrentEnv.Port) + "]# "
-		case strings.HasPrefix(line, "do ") || line == "do":
-			if opts.CurrentEnv.Authname == "" || opts.CurrentEnv.Hostgroupname == "" || opts.CurrentEnv.Port == 0 {
-				fmt.Printf("%v\n", "Please load correct env first")
-				commands.LoadHelp()
-				fmt.Println()
-				commands.DoHelp()
-				goto retry
-			}
-			_, c, err := utils.GetSSHArgs(line)
-			if err != nil {
-				fmt.Printf("%v\n", err.Error())
-				commands.DoHelp()
-				goto retry
-			}
-			if err = commands.DO(*opts, "do", opts.CurrentEnv.Authname, opts.CurrentEnv.Hostgroupname, opts.CurrentEnv.Port, c); err != nil {
-				fmt.Printf("%v\n", err.Error())
-				commands.DoHelp()
-				goto retry
-			}
-			for _, value := range c {
-				prompt.AddCmd(strings.Trim(value, " "))
+				fmt.Println(err)
+				load.Help()
+			} else {
+				if !checkers.IsIpv4(h) {
+					a = opts.Hostgroupsm[h].Authmethod
+					p = opts.Hostgroupsm[h].Sshport
+				}
+				opts.CurrentEnv.Authname = a
+				opts.CurrentEnv.Hostgroupname = h
+				opts.CurrentEnv.Port = p
+				if err := options.SetEnv(opts.CurrentEnv); err != nil {
+					fmt.Printf("%v\n", err.Error())
+					load.Help()
+				} else {
+					opts.Cfg.PromptString = "[" + opts.CurrentEnv.Authname + "@" + opts.CurrentEnv.Hostgroupname + ":" + strconv.Itoa(opts.CurrentEnv.Port) + "]# "
+				}
 			}
 		case strings.HasPrefix(line, "sudo ") || line == "sudo":
-			if opts.CurrentEnv.Authname == "" || opts.CurrentEnv.Hostgroupname == "" || opts.CurrentEnv.Port == 0 {
-				fmt.Printf("%v\n", "Please load correct env first")
-				commands.LoadHelp()
-				fmt.Println()
-				commands.SudoHelp()
-				goto retry
-			}
-			_, c, err := utils.GetSSHArgs(line)
+			ret, err := sudo.Command(*opts, line)
 			if err != nil {
-				fmt.Printf("%v\n", err.Error())
-				commands.SudoHelp()
-				goto retry
-			}
-			if err = commands.SUDO(*opts, "sudo", opts.CurrentEnv.Authname, opts.CurrentEnv.Hostgroupname, opts.CurrentEnv.Port, c); err != nil {
-				fmt.Printf("%v\n", err.Error())
-				commands.SudoHelp()
-				goto retry
-			}
-			for _, value := range c {
-				prompt.AddCmd(strings.Trim(value, " "))
+				fmt.Println(err)
+				sudo.Help()
+			} else {
+				for _, value := range ret {
+					prompt.AddCmd(strings.Trim(value, " "))
+				}
 			}
 		case strings.HasPrefix(line, "download ") || line == "download":
-			if opts.CurrentEnv.Authname == "" || opts.CurrentEnv.Hostgroupname == "" || opts.CurrentEnv.Port == 0 {
-				fmt.Printf("%v\n", "Please load correct env first")
-				commands.LoadHelp()
-				fmt.Println()
-				commands.DownloadHelp()
-				goto retry
-			}
-			_, sf, dd, err := utils.GetSFTPArgs(line)
+			ret, err := download.Command(*opts, line)
 			if err != nil {
-				fmt.Printf("%v\n", err.Error())
-				commands.DownloadHelp()
-				goto retry
+				fmt.Println(err)
+				download.Help()
+			} else {
+				prompt.AddSrcFile(strings.Trim(ret[0], " "))
+				prompt.AddDesDir(strings.Trim(ret[1], " "))
 			}
-			if err = commands.Download(*opts, "download", opts.CurrentEnv.Authname, opts.CurrentEnv.Hostgroupname, opts.CurrentEnv.Port, sf, dd); err != nil {
-				fmt.Printf("%v\n", err.Error())
-				commands.DownloadHelp()
-				goto retry
-			}
-			prompt.AddSrcFile(strings.Trim(sf, " "))
-			prompt.AddDesDir(strings.Trim(dd, " "))
 		case strings.HasPrefix(line, "upload ") || line == "upload":
-			if opts.CurrentEnv.Authname == "" || opts.CurrentEnv.Hostgroupname == "" || opts.CurrentEnv.Port == 0 {
-				fmt.Printf("%v\n", "Please load correct env first")
-				commands.LoadHelp()
-				fmt.Println()
-				commands.UploadHelp()
-				goto retry
-			}
-			_, sf, dd, err := utils.GetSFTPArgs(line)
+			ret, err := upload.Command(*opts, line)
 			if err != nil {
-				fmt.Printf("%v\n", err.Error())
-				commands.UploadHelp()
-				goto retry
+				fmt.Println(err)
+				upload.Help()
+			} else {
+				prompt.AddSrcFile(strings.Trim(ret[0], " "))
+				prompt.AddDesDir(strings.Trim(ret[1], " "))
 			}
-			if err = commands.Upload(*opts, "upload", opts.CurrentEnv.Authname, opts.CurrentEnv.Hostgroupname, opts.CurrentEnv.Port, sf, dd); err != nil {
-				fmt.Printf("%v\n", err.Error())
-				commands.UploadHelp()
-				goto retry
-			}
-			prompt.AddSrcFile(strings.Trim(sf, " "))
-			prompt.AddDesDir(strings.Trim(dd, " "))
-		case strings.HasPrefix(line, "encrypt_aes ") || line == "encrypt_aes":
-			_, t, err := utils.GetCryptArgs(line)
+		case strings.HasPrefix(line, "encrypt ") || line == "encrypt":
+			ret, err := encrypt.Command(*opts, line)
 			if err != nil {
-				fmt.Printf("%v\n", err)
-				commands.EncryptHelp()
-				goto retry
+				fmt.Println(err)
+				encrypt.Help()
+			} else {
+				fmt.Println(ret)
 			}
-			p, err := commands.Encrypt(t)
+		case strings.HasPrefix(line, "decrypt ") || line == "decrypt":
+			ret, err := decrypt.Command(*opts, line)
 			if err != nil {
-				fmt.Printf("%v\n", err)
-				commands.EncryptHelp()
-				goto retry
+				fmt.Println(err)
+				decrypt.Help()
+			} else {
+				fmt.Println(ret)
 			}
-			fmt.Println(p)
-		case strings.HasPrefix(line, "decrypt_aes ") || line == "decrypt_aes":
-			_, t, err := utils.GetCryptArgs(line)
-			if err != nil {
-				fmt.Printf("%v\n", err)
-				commands.DecryptHelp()
-				goto retry
-			}
-			p, err := commands.Decrypt(t)
-			if err != nil {
-				fmt.Printf("%v\n", err)
-				commands.DecryptHelp()
-				goto retry
-			}
-			fmt.Println(p)
-		case line == "?":
-			commands.Help()
-			goto retry
 		case line == "":
-			goto retry
+		case line == "?":
+			load.Help()
+			fmt.Println()
+			do.Help()
+			fmt.Println()
+			sudo.Help()
+			fmt.Println()
+			download.Help()
+			fmt.Println()
+			upload.Help()
+			fmt.Println()
+			encrypt.Help()
+			fmt.Println()
+			decrypt.Help()
+			fmt.Println()
+			fmt.Println(`exit
+    --- Exit rshell
+?
+    --- Help`)
 		case line == "exit":
 			return
 		default:
-			commands.Help()
-			goto retry
+			ret, err := do.Command(*opts, line)
+			if err != nil {
+				fmt.Println(err)
+				do.Help()
+			} else {
+				for _, value := range ret {
+					prompt.AddCmd(strings.Trim(value, " "))
+				}
+			}
 		}
 	}
 }
@@ -240,21 +196,21 @@ func scriptRun() {
 			name := task.Name + "/" + stask.Name
 			if stask.Mode == SSH {
 				if stask.Sudo {
-					if err := commands.SUDO(*opts, name, "", task.Hostgroup, 0, stask.Cmds); err != nil {
+					if err := sudo.Script(*opts, name, stask); err != nil {
 						log.Fatalf("ERROR: %s/%s/%s/%v", name, task.Hostgroup, SUDO, err)
 					}
 				} else {
-					if err := commands.DO(*opts, name, "", task.Hostgroup, 0, stask.Cmds); err != nil {
+					if err := do.Script(*opts, name, stask); err != nil {
 						log.Fatalf("ERROR: %s/%s/%s/%v", name, task.Hostgroup, DO, err)
 					}
 				}
 			} else if stask.Mode == SFTP {
 				if stask.FtpType == DOWNLOAD {
-					if err := commands.Download(*opts, name, "", task.Hostgroup, 0, stask.SrcFile, stask.DesDir); err != nil {
+					if err := download.Script(*opts, name, stask); err != nil {
 						log.Fatalf("ERROR: %s/%s/%s/%v", name, task.Hostgroup, DOWNLOAD, err)
 					}
 				} else if stask.FtpType == UPLOAD {
-					if err := commands.Upload(*opts, name, "", task.Hostgroup, 0, stask.SrcFile, stask.DesDir); err != nil {
+					if err := upload.Script(*opts, name, stask); err != nil {
 						log.Fatalf("ERROR: %s/%s/%s/%v", name, task.Hostgroup, UPLOAD, err)
 					}
 				} else {
