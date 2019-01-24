@@ -42,7 +42,7 @@ func main() {
 	}
 }
 
-var version = "6.0"
+var version = "6.1"
 func showIntro() {
 	fmt.Println(`
  ______     ______     __  __     ______     __         __
@@ -191,6 +191,10 @@ func scriptRun() {
 		if len(task.Subtasks) == 0 {
 			log.Fatal("SSH or SFTP Tasks empty.")
 		}
+
+		opts.CurrentEnv.Hostgroupname = task.Hostgroup
+		opts.CurrentEnv.Port = opts.Hostgroupsm[task.Hostgroup].Sshport
+		opts.CurrentEnv.Authname = opts.Hostgroupsm[task.Hostgroup].Authmethod
 
 		for _, stask := range task.Subtasks {
 			name := task.Name + "/" + stask.Name

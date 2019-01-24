@@ -50,6 +50,10 @@ func Script(o options.Options, name string, stask types.Subtask) error {
 	}
 
 	au, hg := core.GetAuthHostgroup(o)
+	au, err := core.GetPlainPassword(o.Cfg, au)
+	if err != nil {
+		return err
+	}
 
 	core.RunSshCommands(o.Cfg.Concurrency, name + "/" + stask.Name, ACTION, au, hg, stask.Cmds)
 
