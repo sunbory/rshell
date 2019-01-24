@@ -1,6 +1,7 @@
 package sftp
 
 import (
+	"fmt"
 	"github.com/luckywinds/rshell/modes/client"
 	"github.com/pkg/sftp"
 	"io"
@@ -59,7 +60,7 @@ func Upload(groupname, host string, port int, user, pass, keyname, passphrase st
 		}
 		return srcFiles, nil
 	} else {
-		return []string{}, nil
+		return nil, fmt.Errorf("files not found")
 	}
 }
 
@@ -122,6 +123,6 @@ func Download(groupname, host string, port int, user, pass, keyname, passphrase 
 		}
 		return srcFiles, nil
 	} else {
-		return []string{}, nil
+		return nil, fmt.Errorf("files not found")
 	}
 }

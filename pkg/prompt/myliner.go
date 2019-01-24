@@ -28,6 +28,13 @@ func keywordCompleter(line string) (c []string) {
 			c = append(c, value)
 		}
 	}
+	cl := cset.List()
+	sort.Strings(cl)
+	for _, value := range cl {
+		if strings.HasPrefix(value, strings.TrimLeft(line, " ")) {
+			c = append(c, value)
+		}
+	}
 	return
 }
 
@@ -86,56 +93,93 @@ func hostCompleter(line string) (c []string) {
 	return
 }
 
+func choose(ss []string, test func(string) bool) (ret []string) {
+	for _, s := range ss {
+		if test(s) {
+			ret = append(ret, s)
+		}
+	}
+	return
+}
+
 func wordCompleter(line string, pos int) (head string, completions []string, tail string) {
 	head = string([]rune(line)[:pos])
 	tail = string([]rune(line)[pos:])
 
-	keyword := strings.SplitN(strings.TrimLeft(line, " "), " ", 2)
-	if len(keyword) == 1 {
-		return "", keywordCompleter(keyword[0]), tail
+	as := strings.Fields(line)
+
+	if len(as) == 0 {
+		return "", keywordCompleter(""), tail
 	} else {
-		if keyword[0] == "do" || keyword[0] == "sudo" {
-			cmds := strings.Split(strings.TrimLeft(keyword[1], " "), cfg.CmdSeparator)
-			if len(cmds) == 0 {
-				return keyword[0] + " ", cmdCompleter(""), tail
-			} else if len(cmds) == 1 {
-				return keyword[0] + " ", cmdCompleter(cmds[len(cmds)-1]), tail
-			} else {
-				return keyword[0] + " " + strings.Join(cmds[0:len(cmds)-1], cfg.CmdSeparator) + cfg.CmdSeparator, cmdCompleter(cmds[len(cmds)-1]), tail
+		switch as[0] {
+		case "sudo":
+			if len(as) == 1 {
+				return as[0] + " ", cmdCompleter(""), tail
 			}
-		} else if keyword[0] == "upload" || keyword[0] == "download" {
-			srcfile := strings.SplitN(strings.TrimLeft(keyword[1], " "), " ", 2)
-			if len(srcfile) == 1 {
-				return keyword[0] + " ", srcCompleter(srcfile[0]), tail
+			if cfg.CmdSeparator != " " {
+				cmds := strings.Split(strings.Join(as[1:], " "), cfg.CmdSeparator)
+				cmds = choose(cmds, func(s string) bool {
+					return s != ""
+				})
+				if len(cmds) == 1 {
+					if strings.HasSuffix(line, cfg.CmdSeparator) {
+						return as[0] + " " + cmds[0] + cfg.CmdSeparator, cmdCompleter(""), tail
+					} else {
+						return as[0] + " ", cmdCompleter(cmds[len(cmds)-1]), tail
+					}
+				} else {
+					return as[0] + " " + strings.Join(cmds[0:len(cmds)-1], cfg.CmdSeparator) + cfg.CmdSeparator, cmdCompleter(cmds[len(cmds)-1]), tail
+				}
 			} else {
-				desfile := strings.SplitN(strings.TrimLeft(srcfile[1], " "), " ", 2)
-				if len(desfile) == 1 {
-					return keyword[0] + " " + srcfile[0] + " ", desCompleter(desfile[0]), tail
+				return as[0] + " " + strings.Join(as[1:len(as)-1], " ") + " ", cmdCompleter(as[len(as)-1]), tail
+			}
+		case "download", "upload":
+			if len(as) == 1 {
+				return as[0] + " ", srcCompleter(""), tail
+			}
+			if len(as) == 2 {
+				if strings.HasSuffix(line, " ") {
+					return as[0] + " " + as[1] + " ", desCompleter(""), tail
+				} else {
+					return as[0] + " ", desCompleter(as[1]), tail
 				}
 			}
-		} else if keyword[0] == "load" {
-			as := strings.Fields(keyword[1])
-
-			var sep = " "
-			if len(as) == 1 {
-				sep = ""
+			if len(as) == 3 && !strings.HasSuffix(line, " ") {
+				return as[0] + " " + as[1] + " ", desCompleter(""), tail
 			}
-
-			switch {
-			case len(as) == 0:
-				return keyword[0] + sep, optCompleter("-"), tail
-			case strings.HasSuffix(line, " ") && len(as) <= 2:
-				return keyword[0] + " " + strings.Join(as, " ") + " ", optCompleter("-"), tail
-			case as[len(as)-1] == "-":
-				return keyword[0] + sep + strings.Join(as[0:len(as)-1], " ") + " ", optCompleter("-"), tail
-			case strings.HasPrefix(as[len(as)-1], "-A"):
-				return keyword[0] + sep + strings.Join(as[0:len(as)-1], " ") + " ", authCompleter(as[len(as)-1]), tail
-			case strings.HasPrefix(as[len(as)-1], "-H"):
-				return keyword[0] + sep + strings.Join(as[0:len(as)-1], " ") + " ", hostCompleter(as[len(as)-1]), tail
+		case "load":
+			if len(as) == 1 {
+				return as[0] + " ", optCompleter("-"), tail
+			}
+			if len(as) >= 1 {
+				if strings.HasSuffix(line, " ") {
+					return strings.Join(as, " ") + " ", optCompleter("-"), tail
+				} else if strings.HasPrefix(as[len(as)-1], "-A") {
+					return strings.Join(as[0:len(as)-1], " ") + " ", authCompleter(as[len(as)-1]), tail
+				} else if strings.HasPrefix(as[len(as)-1], "-H"){
+					return strings.Join(as[0:len(as)-1], " ") + " ", hostCompleter(as[len(as)-1]), tail
+				}
+			}
+		default:
+			cmds := strings.Split(strings.Join(as, " "), cfg.CmdSeparator)
+			cmds = choose(cmds, func(s string) bool {
+				return s != ""
+			})
+			if len(cmds) == 0 {
+				return "", keywordCompleter(""), tail
+			}
+			if len(cmds) == 1 {
+				if strings.HasSuffix(line, cfg.CmdSeparator) {
+					return cmds[0] + cfg.CmdSeparator, cmdCompleter(""), tail
+				} else {
+					return "", keywordCompleter(cmds[0]), tail
+				}
+			} else {
+				return strings.Join(cmds[0:len(cmds)-1], cfg.CmdSeparator) + cfg.CmdSeparator, cmdCompleter(cmds[len(cmds)-1]), tail
 			}
 		}
 	}
-	return "", []string{}, tail
+	return head, nil, tail
 }
 
 func New(c types.Cfg, hostgroups types.Hostgroups) (*liner.State, error) {

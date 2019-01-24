@@ -51,7 +51,6 @@ func AddDesDir(des string) {
 }
 
 func init() {
-	AddKeyword("do")
 	AddKeyword("sudo")
 	AddKeyword("upload")
 	AddKeyword("download")
