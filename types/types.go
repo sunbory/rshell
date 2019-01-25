@@ -10,6 +10,7 @@ type BlackCmd struct {
 type Cfg struct {
 	Concurrency   int        `yaml:"concurrency,omitempty"`
 	Tasktimeout   int        `yaml:"tasktimeout,omitempty"`
+	Connecttimeout int       `yaml:"connecttimeout,omitempty"`
 	CmdSeparator  string     `yaml:"cmdseparator,omitempty"`
 	BlackCmdList  []BlackCmd `yaml:"blackcmdlist,omitempty"`
 	PromptString  string     `yaml:"promptstring,omitempty"`
