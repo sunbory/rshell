@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/luckywinds/rshell/modes/client"
 	"github.com/luckywinds/rshell/options"
 	"github.com/luckywinds/rshell/pkg/checkers"
 	"github.com/luckywinds/rshell/pkg/prompt"
@@ -35,6 +36,8 @@ var opts = options.New()
 func main() {
 	go update.Update(opts.Cfg, version)
 
+	client.SetCache(opts.Cfg.Connecttimeout)
+
 	if !opts.IsScriptMode {
 		interactiveRun()
 	} else {
@@ -42,7 +45,7 @@ func main() {
 	}
 }
 
-var version = "7.0"
+var version = "7.1"
 func showIntro() {
 	fmt.Println(`
  ______     ______     __  __     ______     __         __
