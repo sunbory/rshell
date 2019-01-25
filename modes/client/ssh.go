@@ -14,10 +14,22 @@ var dialcache *cache.Cache
 
 func SetCache(ttl int) {
 	if ttl != 0 {
-		dialcache = cache.New(time.Duration(ttl)*time.Second, time.Duration(ttl + 30)*time.Second)
+		dialcache = cache.New(time.Duration(ttl)*time.Second, time.Duration(ttl + 10)*time.Second)
 	} else {
-		dialcache = cache.New(60*time.Second, 90*time.Second)
+		dialcache = cache.New(3600*time.Second, 3610*time.Second)
 	}
+	go func(c *cache.Cache) {
+		t := time.NewTicker(10 * time.Second)
+		defer t.Stop()
+		for range t.C {
+			for key, value := range c.Items() {
+				_, _, err := value.Object.(*ssh.Client).Conn.SendRequest("keepalive@rshell", true, nil)
+				if err != nil {
+					dialcache.Delete(key)
+				}
+			}
+		}
+	}(dialcache)
 }
 
 func New(groupname, host string, port int, user, pass, keyname, passphrase string, timeout int, ciphers []string) (*ssh.Client, error) {
