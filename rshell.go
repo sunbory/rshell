@@ -52,7 +52,7 @@ func setup() {
 	client.SetupCache(opts.Cfg.Connecttimeout)
 }
 
-var version = "7.1"
+var version = "7.2"
 func showIntro() {
 	fmt.Println(`
  ______     ______     __  __     ______     __         __
