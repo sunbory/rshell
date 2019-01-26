@@ -202,7 +202,7 @@ func interactiveRun() {
 
 func scriptRun() {
 	for _, task := range opts.Tasks.Ts {
-		rlog.Debug.Printf("task: %v", task)
+		rlog.Debug.Printf("task: %+v", task)
 		if task.Name == "" || task.Hostgroup == "" {
 			log.Fatal("The task's name or hostgroup empty.")
 		}
@@ -217,7 +217,7 @@ func scriptRun() {
 
 		rlog.Info.Printf("current env: %+v", opts.CurrentEnv)
 		for _, stask := range task.Subtasks {
-			rlog.Debug.Printf("stask: %v", stask)
+			rlog.Debug.Printf("stask: %+v", stask)
 			name := task.Name + "/" + stask.Name
 			if stask.Mode == SSH {
 				if stask.Sudo {
