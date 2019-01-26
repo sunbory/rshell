@@ -5,6 +5,7 @@ import (
 	"github.com/scylladb/go-set/strset"
 	"net"
 	"regexp"
+	"strings"
 )
 
 func IsDuplicate(ss []string) bool {
@@ -48,4 +49,21 @@ func CheckAuthmethodName(name string) bool {
 		return false
 	}
 	return true
+}
+
+func IsBlackCmd(cmd string, bcl []types.BlackCmd) bool {
+	cstr := strings.TrimSpace(cmd)
+	for _, bstr := range bcl {
+		if bstr.Cmd != "" {
+			if cstr == bstr.Cmd {
+				return true
+			}
+		}
+		if bstr.CmdPrefix != "" {
+			if strings.HasPrefix(cstr, bstr.CmdPrefix) {
+				return true
+			}
+		}
+	}
+	return false
 }

@@ -3,6 +3,7 @@ package download
 import (
 	"fmt"
 	"github.com/luckywinds/rshell/options"
+	"github.com/luckywinds/rshell/pkg/rlog"
 	"github.com/luckywinds/rshell/plugins/core"
 	"github.com/luckywinds/rshell/types"
 )
@@ -18,6 +19,8 @@ func Help() {
 }
 
 func Command(o options.Options, line string) ([]string, error) {
+	rlog.Info.Printf("line: %s", line)
+
 	if err := core.EnvCheck(o.CurrentEnv); err != nil {
 		return []string{}, err
 	}
@@ -26,6 +29,7 @@ func Command(o options.Options, line string) ([]string, error) {
 	if len(as) != 2 {
 		return []string{}, fmt.Errorf("arguments illegal")
 	}
+	rlog.Debug.Printf("as: %#v", as)
 
 	au, hg := core.GetAuthHostgroup(o)
 
@@ -36,10 +40,13 @@ func Command(o options.Options, line string) ([]string, error) {
 
 	core.RunSftpCommands(o.Cfg.Concurrency, ACTION, ACTION, au, hg, as[0], as[1])
 
+	rlog.Debug.Printf("ret: %s", as)
 	return as, nil
 }
 
 func Script(o options.Options, name string, stask types.Subtask) error {
+	rlog.Info.Printf("name: %s, stask: %+v", name, stask)
+
 	if stask.SrcFile == "" || stask.DesDir == "" {
 		return fmt.Errorf("src file or des dir empty")
 	}

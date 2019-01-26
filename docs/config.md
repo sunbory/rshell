@@ -11,9 +11,9 @@
 > .rshell/cfg.yaml
 
 ```
-concurrency: 6                                                       #The num of concurrency goroutine for hosts, Default: 6
+concurrency: 10                                                      #The num of concurrency goroutine for hosts, Default: 10
 tasktimeout: 300                                                     #The total timeout [second] of everyone goroutine, Default: 300
-connecttimeout: 60                                                   #The total timeout [second] of everyone ssh connection, Default: 60
+connecttimeout: 3600                                                 #The total timeout [second] of everyone ssh connection, Default: 3600
 cmdseparator: ";"                                                    #The command separator, Default: ";"
 promptstring: "rshell: "                                             #The system prompt string, Default: "rshell: "
 outputintime: true                                                   #The output in time, Default: false

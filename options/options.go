@@ -113,7 +113,7 @@ func New() *Options {
 
 func GetCfg() Cfg {
 	if cfg.Concurrency == 0 {
-		cfg.Concurrency = 6
+		cfg.Concurrency = 10
 	} else if cfg.Concurrency < 0 || cfg.Concurrency > 100 {
 		log.Fatalf("Config Concurrency illegal [%d] not in (0, 100].", cfg.Concurrency)
 	}
@@ -121,6 +121,11 @@ func GetCfg() Cfg {
 		cfg.Tasktimeout = 300
 	} else if cfg.Tasktimeout < 0 || cfg.Tasktimeout > 86400 {
 		log.Fatalf("Config Tasktimeout illegal [%d] not in (0, 86400].", cfg.Tasktimeout)
+	}
+	if cfg.Connecttimeout == 0 {
+		cfg.Connecttimeout = 3600
+	} else if cfg.Connecttimeout < 0 || cfg.Connecttimeout > 86400 {
+		log.Fatalf("Config Connecttimeout illegal [%d] not in (0, 86400].", cfg.Connecttimeout)
 	}
 	if cfg.CmdSeparator == "" {
 		cfg.CmdSeparator = ";"

@@ -8,7 +8,7 @@ import (
 	"github.com/luckywinds/rshell/outputs"
 	"github.com/luckywinds/rshell/pkg/checkers"
 	"github.com/luckywinds/rshell/pkg/crypt"
-	"github.com/luckywinds/rshell/pkg/filters"
+	"github.com/luckywinds/rshell/pkg/rlog"
 	"github.com/luckywinds/rshell/types"
 	"strings"
 )
@@ -54,7 +54,7 @@ func EnvCheck(env options.CurrentEnv) error {
 
 func SecurityCheck(bcmds []types.BlackCmd, cmds []string) error {
 	for _, value := range cmds {
-		if filters.IsBlackCmd(value, bcmds) {
+		if checkers.IsBlackCmd(value, bcmds) {
 			return fmt.Errorf("DANGER: [%s] in black command list.", value)
 		}
 	}
@@ -76,8 +76,10 @@ func GetPlainPassword(c types.Cfg, au types.Auth) (nau types.Auth, err error) {
 	return au,nil
 }
 
-func RunSshCommands(Concurrency int, actionname, actiontype string, au types.Auth, hg types.Hostgroup, cmds []string) {
-	limit := make(chan bool, Concurrency)
+func RunSshCommands(concurrency int, actionname, actiontype string, au types.Auth, hg types.Hostgroup, cmds []string) {
+	rlog.Info.Printf("concurrency: %d, actionname: %s, actiontype: %s, au: %+v, hg: %+v, cmds: %#v", concurrency, actionname, actiontype, au, hg, cmds)
+
+	limit := make(chan bool, concurrency)
 	defer close(limit)
 
 	taskchs := make(chan types.Hostresult, len(hg.Ips))
@@ -114,8 +116,10 @@ func RunSshCommands(Concurrency int, actionname, actiontype string, au types.Aut
 	outputs.Output(taskchs, hg)
 }
 
-func RunSftpCommands(Concurrency int, actionname, actiontype string, au types.Auth, hg types.Hostgroup, srcFilePath, desDirPath string) {
-	limit := make(chan bool, Concurrency)
+func RunSftpCommands(concurrency int, actionname, actiontype string, au types.Auth, hg types.Hostgroup, srcFilePath, desDirPath string) {
+	rlog.Info.Printf("concurrency: %d, actionname: %s, actiontype: %s, au: %+v, hg: %+v, srcFilePath: %s, desDirPath: %s", concurrency, actionname, actiontype, au, hg, srcFilePath, desDirPath)
+
+	limit := make(chan bool, concurrency)
 	defer close(limit)
 
 	taskchs := make(chan types.Hostresult, len(hg.Ips))
