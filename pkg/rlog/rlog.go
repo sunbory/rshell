@@ -36,6 +36,12 @@ func init() {
 }
 
 func rotate() {
+	if err := os.Mkdir(".rshell/logs", os.ModeDir); err != nil {
+		if os.IsNotExist(err) {
+			log.Fatalf("mkdir .rshell/logs error: %v\n", err)
+		}
+	}
+
 	lfs, err := filepath.Glob(logfileprefix + "*")
 	if err != nil {
 		log.Fatalf("glog the log file [%s] error: %v\n", logfileprefix, err)
