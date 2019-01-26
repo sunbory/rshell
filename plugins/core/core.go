@@ -8,7 +8,6 @@ import (
 	"github.com/luckywinds/rshell/outputs"
 	"github.com/luckywinds/rshell/pkg/checkers"
 	"github.com/luckywinds/rshell/pkg/crypt"
-	"github.com/luckywinds/rshell/pkg/filters"
 	"github.com/luckywinds/rshell/pkg/rlog"
 	"github.com/luckywinds/rshell/types"
 	"strings"
@@ -55,7 +54,7 @@ func EnvCheck(env options.CurrentEnv) error {
 
 func SecurityCheck(bcmds []types.BlackCmd, cmds []string) error {
 	for _, value := range cmds {
-		if filters.IsBlackCmd(value, bcmds) {
+		if checkers.IsBlackCmd(value, bcmds) {
 			return fmt.Errorf("DANGER: [%s] in black command list.", value)
 		}
 	}
