@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/luckywinds/rshell/options"
 	"github.com/luckywinds/rshell/pkg/crypt"
+	"github.com/luckywinds/rshell/pkg/rlog"
 	"github.com/luckywinds/rshell/plugins/core"
 )
 
@@ -18,10 +19,13 @@ func Help() {
 }
 
 func Command(o options.Options, line string) (string, error) {
+	rlog.Info.Printf("line: %s", line)
+
 	as := core.GetArgFields(line, ACTION, " ")
 	if len(as) != 1 || as[0] == "" {
 		return "", fmt.Errorf("arguments illegal")
 	}
+	rlog.Debug.Printf("as: %#v", as)
 
 	switch o.Cfg.Passcrypttype {
 	case "aes":

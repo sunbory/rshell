@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/luckywinds/rshell/options"
 	"github.com/luckywinds/rshell/pkg/checkers"
+	"github.com/luckywinds/rshell/pkg/rlog"
 	"github.com/luckywinds/rshell/plugins/core"
 	"strconv"
 	"strings"
@@ -29,6 +30,8 @@ func Help() {
 var aname, hname string
 var port int
 func Command(o options.Options, line string) (string, string, int, error) {
+	rlog.Info.Printf("line: %s", line)
+
 	aname = o.CurrentEnv.Authname
 	hname = o.CurrentEnv.Hostgroupname
 	port = o.CurrentEnv.Port
@@ -37,6 +40,7 @@ func Command(o options.Options, line string) (string, string, int, error) {
 	if len(as) > 3 || len(as) == 0 {
 		return aname, hname, port, fmt.Errorf("arguments illegal")
 	}
+	rlog.Debug.Printf("as: %#v", as)
 
 	for _, value := range as {
 		if err := args(o, value); err != nil {
@@ -56,6 +60,7 @@ func Command(o options.Options, line string) (string, string, int, error) {
 		}
 	}
 
+	rlog.Debug.Printf("ret: %s, %s, %d", aname, hname, port)
 	return aname, hname, port, nil
 }
 

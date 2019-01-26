@@ -12,7 +12,7 @@ import (
 
 var dialcache *cache.Cache
 
-func SetCache(ttl int) {
+func SetupCache(ttl int) {
 	if ttl != 0 {
 		dialcache = cache.New(time.Duration(ttl)*time.Second, time.Duration(ttl + 10)*time.Second)
 	} else {
