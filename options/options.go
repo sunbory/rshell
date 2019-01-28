@@ -28,8 +28,11 @@ type Options struct {
 	Values map[string]interface{}
 
 	IsScriptMode bool
+	IsCommandlineMode bool
 
 	CurrentEnv CurrentEnv
+
+	Line string
 }
 
 type CurrentEnv struct {
@@ -45,6 +48,10 @@ var (
 	authFile  = path.Join(".rshell", "auth.yaml")
 	script    = flag.String("f", "", "The script yaml.")
 	scriptValues   = flag.String("v", "", "The script values yaml.")
+	authName  = flag.String("A", "", "The auth method name.")
+	hostName  = flag.String("H", "", "The host name.")
+	sshport   = flag.Int("P", 22, "The ssh port.")
+	cmdline   = flag.String("L", "", "The command line.")
 )
 
 func init() {
@@ -84,7 +91,7 @@ func New() *Options {
 	var cfg = GetCfg()
 	var auths, authsm = GetAuths()
 	var hostgroups, hostgroupsm = GetHostgroups()
-	var tasks, isScriptMode = GetTasks()
+	var tasks = GetTasks()
 
 	for key, _ := range authsm {
 		prompt.AddAuth("-A" + key)
@@ -102,12 +109,14 @@ func New() *Options {
 		Authsm:           authsm,
 		Tasks:            tasks,
 		Values:           nil,
-		IsScriptMode:     isScriptMode,
+		IsScriptMode:     *script != "",
+		IsCommandlineMode: *hostName != "" && *cmdline != "",
 		CurrentEnv:       CurrentEnv{
-			Hostgroupname: "",
-			Authname:      "",
-			Port:          22,
+			Hostgroupname: *hostName,
+			Authname:      *authName,
+			Port:          *sshport,
 		},
+		Line:              *cmdline,
 	}
 }
 
@@ -381,7 +390,7 @@ func templateScript(script string) {
 	}
 }
 
-func GetTasks() (Tasks, bool) {
+func GetTasks() (Tasks) {
 	if *script != "" {
 		initValues(*scriptValues)
 		if len(values) != 0 {
@@ -394,9 +403,9 @@ func GetTasks() (Tasks, bool) {
 			log.Fatal("The tasks empty.")
 		}
 
-		return tasks, true
+		return tasks
 	} else {
-		return tasks, false
+		return tasks
 	}
 }
 
