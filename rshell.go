@@ -55,7 +55,7 @@ func setup() {
 	client.SetupCache(opts.Cfg.Connecttimeout)
 }
 
-var version = "8"
+var version = "8.0"
 func showIntro() {
 	fmt.Println(`
  ______     ______     __  __     ______     __         __
@@ -239,9 +239,13 @@ func scriptRun() {
 			log.Fatal("SSH or SFTP Tasks empty.")
 		}
 
-		opts.CurrentEnv.Hostgroupname = task.Hostgroup
-		opts.CurrentEnv.Port = opts.Hostgroupsm[task.Hostgroup].Sshport
-		opts.CurrentEnv.Authname = opts.Hostgroupsm[task.Hostgroup].Authmethod
+		if _, ok := opts.Hostgroupsm[task.Hostgroup]; !ok {
+			rlog.Error.Fatalf("host group [%s] not found", task.Hostgroup)
+		} else {
+			opts.CurrentEnv.Hostgroupname = task.Hostgroup
+			opts.CurrentEnv.Authname = opts.Hostgroupsm[opts.CurrentEnv.Hostgroupname].Authmethod
+			opts.CurrentEnv.Port = opts.Hostgroupsm[opts.CurrentEnv.Hostgroupname].Sshport
+		}
 
 		rlog.Info.Printf("current env: %+v", opts.CurrentEnv)
 		for _, stask := range task.Subtasks {

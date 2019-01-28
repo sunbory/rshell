@@ -1,6 +1,6 @@
 tasks:
 - name: test all
-  hostgroup: test-group01
+  hostgroup: hostgroup-all
   subtasks:
   - name: test do
     mode: ssh
