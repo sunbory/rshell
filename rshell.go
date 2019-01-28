@@ -70,23 +70,27 @@ func showIntro() {
 func commandRun() {
 	rlog.Info.Printf("current env: %+v", opts.CurrentEnv)
 
-	if checkers.IsIpv4(opts.CurrentEnv.Hostgroupname) {
-		if _, ok := opts.Authsm[opts.CurrentEnv.Authname]; !ok {
-			rlog.Error.Fatalf("auth name [%s] not found", opts.CurrentEnv.Authname)
-		}
-		if opts.CurrentEnv.Port <= 0 || opts.CurrentEnv.Port >= 65535 {
-			rlog.Error.Fatalf("ssh port [%d] illegal", opts.CurrentEnv.Port)
-		}
+	if strings.HasPrefix(opts.Line, "encrypt ") || strings.HasPrefix(opts.Line, "decrypt ") {
+		runCommand(opts.Line)
 	} else {
-		if _, ok := opts.Hostgroupsm[opts.CurrentEnv.Hostgroupname]; !ok {
-			rlog.Error.Fatalf("host group [%s] not found", opts.CurrentEnv.Hostgroupname)
+		if checkers.IsIpv4(opts.CurrentEnv.Hostgroupname) {
+			if _, ok := opts.Authsm[opts.CurrentEnv.Authname]; !ok {
+				rlog.Error.Fatalf("auth name [%s] not found", opts.CurrentEnv.Authname)
+			}
+			if opts.CurrentEnv.Port <= 0 || opts.CurrentEnv.Port >= 65535 {
+				rlog.Error.Fatalf("ssh port [%d] illegal", opts.CurrentEnv.Port)
+			}
 		} else {
-			opts.CurrentEnv.Authname = opts.Hostgroupsm[opts.CurrentEnv.Hostgroupname].Authmethod
-			opts.CurrentEnv.Port = opts.Hostgroupsm[opts.CurrentEnv.Hostgroupname].Sshport
+			if _, ok := opts.Hostgroupsm[opts.CurrentEnv.Hostgroupname]; !ok {
+				rlog.Error.Fatalf("host group [%s] not found", opts.CurrentEnv.Hostgroupname)
+			} else {
+				opts.CurrentEnv.Authname = opts.Hostgroupsm[opts.CurrentEnv.Hostgroupname].Authmethod
+				opts.CurrentEnv.Port = opts.Hostgroupsm[opts.CurrentEnv.Hostgroupname].Sshport
+			}
 		}
-	}
 
-	runCommand(opts.Line)
+		runCommand(opts.Line)
+	}
 }
 func interactiveRun() {
 	showIntro()

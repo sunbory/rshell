@@ -110,7 +110,7 @@ func New() *Options {
 		Tasks:            tasks,
 		Values:           nil,
 		IsScriptMode:     *script != "",
-		IsCommandlineMode: *hostName != "" && *cmdline != "",
+		IsCommandlineMode: *cmdline != "",
 		CurrentEnv:       CurrentEnv{
 			Hostgroupname: *hostName,
 			Authname:      *authName,
