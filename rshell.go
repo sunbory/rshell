@@ -254,31 +254,30 @@ func scriptRun() {
 		rlog.Info.Printf("current env: %+v", opts.CurrentEnv)
 		for _, stask := range task.Subtasks {
 			rlog.Debug.Printf("stask: %+v", stask)
-			name := task.Name + "/" + stask.Name
 			if stask.Mode == SSH {
 				if stask.Sudo {
-					if err := sudo.Script(*opts, name, stask); err != nil {
-						rlog.Error.Fatalf("%s/%s/%s/%v", name, task.Hostgroup, SUDO, err)
+					if err := sudo.Script(*opts, task.Name, stask); err != nil {
+						rlog.Error.Fatalf("%s/%s/%s/%v", task.Name, task.Hostgroup, SUDO, err)
 					}
 				} else {
-					if err := do.Script(*opts, name, stask); err != nil {
-						rlog.Error.Fatalf("%s/%s/%s/%v", name, task.Hostgroup, DO, err)
+					if err := do.Script(*opts, task.Name, stask); err != nil {
+						rlog.Error.Fatalf("%s/%s/%s/%v", task.Name, task.Hostgroup, DO, err)
 					}
 				}
 			} else if stask.Mode == SFTP {
 				if stask.FtpType == DOWNLOAD {
-					if err := download.Script(*opts, name, stask); err != nil {
-						rlog.Error.Fatalf("%s/%s/%s/%v", name, task.Hostgroup, DOWNLOAD, err)
+					if err := download.Script(*opts, task.Name, stask); err != nil {
+						rlog.Error.Fatalf("%s/%s/%s/%v", task.Name, task.Hostgroup, DOWNLOAD, err)
 					}
 				} else if stask.FtpType == UPLOAD {
-					if err := upload.Script(*opts, name, stask); err != nil {
-						rlog.Error.Fatalf("%s/%s/%s/%v", name, task.Hostgroup, UPLOAD, err)
+					if err := upload.Script(*opts, task.Name, stask); err != nil {
+						rlog.Error.Fatalf("%s/%s/%s/%v", task.Name, task.Hostgroup, UPLOAD, err)
 					}
 				} else {
-					rlog.Error.Fatalf("%s/%s/%s/%s", name, task.Hostgroup, stask.FtpType, "Not support")
+					rlog.Error.Fatalf("%s/%s/%s/%s", task.Name, task.Hostgroup, stask.FtpType, "Not support")
 				}
 			} else {
-				rlog.Error.Fatalf("%s/%s/%s/%s", name, task.Hostgroup, stask.Mode, "Not support")
+				rlog.Error.Fatalf("%s/%s/%s/%s", task.Name, task.Hostgroup, stask.Mode, "Not support")
 			}
 		}
 	}

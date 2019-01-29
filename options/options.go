@@ -109,8 +109,8 @@ func New() *Options {
 		Authsm:           authsm,
 		Tasks:            tasks,
 		Values:           nil,
-		IsScriptMode:     *script != "",
-		IsCommandlineMode: *cmdline != "",
+		IsScriptMode:     IsScriptMode(),
+		IsCommandlineMode: IsCommandlineMode(),
 		CurrentEnv:       CurrentEnv{
 			Hostgroupname: *hostName,
 			Authname:      *authName,
@@ -118,6 +118,14 @@ func New() *Options {
 		},
 		Line:              *cmdline,
 	}
+}
+
+func IsScriptMode() bool {
+	return *script != ""
+}
+
+func IsCommandlineMode() bool {
+	return *cmdline != ""
 }
 
 func GetCfg() Cfg {
