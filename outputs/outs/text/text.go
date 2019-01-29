@@ -57,6 +57,7 @@ func (t TEXT) Finish(intime bool, hg types.Hostgroup) {
 			printItem(m[h])
 		}
 	}
+	taskresult = types.Taskresult{}
 }
 
 var header = false

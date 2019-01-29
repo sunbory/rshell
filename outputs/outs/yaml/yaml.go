@@ -42,4 +42,5 @@ func (y YAML) Finish(intime bool, hg types.Hostgroup) {
 	taskresult.Name = taskresult.Results[0].Actionname
 	d, _ := yaml.Marshal(&taskresult)
 	fmt.Println(string(d))
+	taskresult = types.Taskresult{}
 }

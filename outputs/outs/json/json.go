@@ -42,4 +42,5 @@ func (j JSON) Finish(intime bool, hg types.Hostgroup) {
 	taskresult.Name = taskresult.Results[0].Actionname
 	d, _ := json.MarshalIndent(&taskresult, "", "  ")
 	fmt.Println(string(d))
+	taskresult = types.Taskresult{}
 }
