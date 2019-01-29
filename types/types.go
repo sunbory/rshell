@@ -85,7 +85,7 @@ type Hostresult struct {
 	Actiontype string `yaml:"actiontype,omitempty"`
 	Groupname string `yaml:"groupname,omitempty"`
 	Hostaddr string `yaml:"hostaddr,omitempty"`
-	Error    string `yaml:"error,omitempyt"`
+	Error    string `yaml:"error,omitempty"`
 	Stdout   string `yaml:"stdout,omitempty"`
 	Stderr   string `yaml:"stderr,omitempty"`
 }

@@ -1,10 +1,12 @@
-package outs
+package text
 
 import (
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/luckywinds/rshell/types"
 )
+
+var taskresult types.Taskresult
 
 type TEXT struct {
 }

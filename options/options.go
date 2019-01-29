@@ -148,8 +148,8 @@ func GetCfg() Cfg {
 	}
 	if cfg.Outputtype == "" {
 		cfg.Outputtype = "text"
-	} else if cfg.Outputtype != "text" {
-		log.Fatalf("Config Outputtype illegal [%s] not in [text].", cfg.Outputtype)
+	} else if cfg.Outputtype != "text" && cfg.Outputtype != "json" && cfg.Outputtype != "yaml" {
+		log.Fatalf("Config Outputtype illegal [%s] not in [text, json, yaml].", cfg.Outputtype)
 	}
 	if cfg.Hostgroupsize == 0 {
 		cfg.Hostgroupsize = 200
