@@ -3,36 +3,82 @@ package outs
 import (
 	"fmt"
 	"github.com/fatih/color"
+	"github.com/luckywinds/rshell/types"
 )
 
 type TEXT struct {
-	Actionname string
-	Actiontype string
-	Groupname string
-	Address string
-	Stdout string
-	Stderr string
-	Syserr string
 }
 
-func (t TEXT) Print() {
-	fmt.Printf("%+v", t)
-}
-
-func (t TEXT) PrintSimple() {
-	color.Green("HOST [%-16s] =======================================================\n", t.Address)
-	if t.Stdout != "" {
-		fmt.Printf("%s\n", t.Stdout)
+func (t TEXT) Print(intime bool, result types.Hostresult, hg types.Hostgroup) {
+	taskresult.Results = append(taskresult.Results, result)
+	if intime {
+		printHeader(result, hg)
+		printItem(result)
 	}
-	if t.Stderr != "" {
+}
+
+func (t TEXT) Break(intime bool, hg types.Hostgroup)  {
+	m := make(map[string]types.Hostresult)
+	for _, v := range taskresult.Results {
+		m[v.Hostaddr] = v
+	}
+
+	for _, h := range hg.Ips {
+		if _, ok := m[h]; !ok {
+			item := types.Hostresult{
+				Actionname: taskresult.Results[0].Actionname,
+				Actiontype: taskresult.Results[0].Actiontype,
+				Groupname:  hg.Groupname,
+				Hostaddr:   h,
+				Error:      "TIMEOUT",
+				Stdout:     "",
+				Stderr:     "",
+			}
+			if intime {
+				printItem(item)
+			}
+			taskresult.Results = append(taskresult.Results, item)
+		}
+	}
+}
+
+func (t TEXT) Finish(intime bool, hg types.Hostgroup) {
+	if !intime {
+		printHeader(taskresult.Results[0], hg)
+
+		m := make(map[string]types.Hostresult)
+		for _, v := range taskresult.Results {
+			m[v.Hostaddr] = v
+		}
+
+		for _, h := range hg.Ips {
+			printItem(m[h])
+		}
+	}
+}
+
+var header = false
+func printHeader(result types.Hostresult, hg types.Hostgroup) {
+	if !header {
+		color.Yellow("TASK [%-50s] *********************\n", result.Actionname + "@" + hg.Groupname)
+		header = true
+	}
+}
+
+func printItem(result types.Hostresult) {
+	color.Green("HOST [%-16s] =======================================================\n", result.Hostaddr)
+	if result.Stdout != "" {
+		fmt.Printf("%s\n", result.Stdout)
+	}
+	if result.Stderr != "" {
 		color.Red("%s\n", "STDERR =>")
-		fmt.Printf("%s\n", t.Stderr)
+		fmt.Printf("%s\n", result.Stderr)
 	}
-	if t.Syserr != "" {
+	if result.Error != "" {
 		color.Red("%s\n", "SYSERR =>")
-		fmt.Printf("%s\n", t.Syserr)
+		fmt.Printf("%s\n", result.Error)
 	}
-	if t.Stdout == "" && t.Stderr == "" && t.Syserr == "" {
+	if result.Stdout == "" && result.Stderr == "" && result.Error == "" {
 		fmt.Println()
 	}
 }
