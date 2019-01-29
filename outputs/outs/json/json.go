@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/luckywinds/rshell/types"
+	"strings"
 )
 
-
+var taskresults = make(map[string][]types.Taskresult)
 var taskresult types.Taskresult
 
 type JSON struct {
@@ -39,8 +40,27 @@ func (j JSON) Break(intime bool, hg types.Hostgroup)  {
 }
 
 func (j JSON) Finish(intime bool, hg types.Hostgroup) {
-	taskresult.Name = taskresult.Results[0].Actionname
-	d, _ := json.MarshalIndent(&taskresult, "", "  ")
-	fmt.Println(string(d))
+	var taskName, staskName string
+	names := strings.Split(taskresult.Results[0].Actionname, "/")
+	if len(names) == 2 {
+		taskName = names[0]
+		staskName = names[1]
+	} else {
+		taskName = names[0]
+		staskName = names[0]
+	}
+
+	taskresult.Name = staskName
+	taskresults[taskName] = append(taskresults[taskName], taskresult)
 	taskresult = types.Taskresult{}
+}
+
+func (j JSON) End() {
+	if len(taskresults) > 0 {
+		d, _ := json.MarshalIndent(&taskresults, "", "  ")
+		fmt.Println(string(d))
+		for key, _ := range taskresults {
+			delete(taskresults, key)
+		}
+	}
 }

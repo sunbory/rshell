@@ -61,6 +61,10 @@ func (t TEXT) Finish(intime bool, hg types.Hostgroup) {
 	header = false
 }
 
+func (t TEXT) End() {
+
+}
+
 var header = false
 func printHeader(result types.Hostresult, hg types.Hostgroup) {
 	if !header {

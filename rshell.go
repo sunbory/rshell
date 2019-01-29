@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/luckywinds/rshell/modes/client"
 	"github.com/luckywinds/rshell/options"
+	"github.com/luckywinds/rshell/outputs"
 	"github.com/luckywinds/rshell/pkg/checkers"
 	"github.com/luckywinds/rshell/pkg/prompt"
 	"github.com/luckywinds/rshell/pkg/rlog"
@@ -230,13 +231,14 @@ func runCommand(line string) {
 			}
 		}
 	}
+	outputs.End()
 }
 
 func scriptRun() {
 	for _, task := range opts.Tasks.Ts {
 		rlog.Debug.Printf("task: %+v", task)
-		if task.Name == "" || task.Hostgroup == "" {
-			log.Fatal("The task's name or hostgroup empty.")
+		if !checkers.CheckTaskName(task.Name) || !checkers.CheckHostgroupName(task.Hostgroup) {
+			log.Fatal("The task's name or hostgroup illegal.")
 		}
 
 		if len(task.Subtasks) == 0 {
@@ -254,6 +256,9 @@ func scriptRun() {
 		rlog.Info.Printf("current env: %+v", opts.CurrentEnv)
 		for _, stask := range task.Subtasks {
 			rlog.Debug.Printf("stask: %+v", stask)
+			if !checkers.CheckTaskName(stask.Name) {
+				log.Fatal("The stask's name illegal.")
+			}
 			if stask.Mode == SSH {
 				if stask.Sudo {
 					if err := sudo.Script(*opts, task.Name, stask); err != nil {
@@ -281,4 +286,5 @@ func scriptRun() {
 			}
 		}
 	}
+	outputs.End()
 }

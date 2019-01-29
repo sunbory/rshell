@@ -37,6 +37,13 @@ func CheckHostgroupSize(h types.Hostgroup, max int) bool {
 	return true
 }
 
+func CheckTaskName(name string) bool {
+	if ok, _ := regexp.MatchString("^[a-z A-Z0-9_-]+$", name); !ok {
+		return false
+	}
+	return true
+}
+
 func CheckHostgroupName(name string) bool {
 	if ok, _ := regexp.MatchString("^[a-zA-Z0-9_-]+$", name); !ok {
 		return false

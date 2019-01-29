@@ -40,3 +40,7 @@ func outFactory(t string) outs.OUT {
 		return text.TEXT{}
 	}
 }
+
+func End() {
+	O.End()
+}

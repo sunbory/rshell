@@ -1,5 +1,5 @@
 tasks:
-- name: test all
+- name: test ssh
   hostgroup: hostgroup-all
   subtasks:
   - name: test do
@@ -17,6 +17,9 @@ tasks:
     - whoami
     - date
 
+- name: test sftp
+  hostgroup: hostgroup-all
+  subtasks:
   - name: test upload
     mode: sftp
     ftptype: upload
@@ -32,4 +35,4 @@ tasks:
     mode: sftp
     ftptype: download
     srcfile: test.yaml
-    desdir: . 
+    desdir: .
