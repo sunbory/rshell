@@ -7,41 +7,51 @@ import (
 	"strings"
 )
 
-var taskresults = make(map[string][]types.Taskresult)
-var taskresult types.Taskresult
+type SubTaskresult struct {
+	Name    string       `json:"name,omitempty"`
+	Results []types.Hostresult `json:"results,omitempty"`
+}
+var subTaskresult = SubTaskresult{}
+
+type Tasksresults struct {
+	Name string `json:"name,omitempty"`
+	Results []SubTaskresult `json:"results,omitempty"`
+}
+var tasksresults = Tasksresults{}
+
+var result = []Tasksresults{}
 
 type JSON struct {
 }
 
-func (j JSON) Print(intime bool, result types.Hostresult, hg types.Hostgroup) {
-	taskresult.Results = append(taskresult.Results, result)
+func (j JSON) Print(actionname, actiontype string, result types.Hostresult, hg types.Hostgroup) {
+	subTaskresult.Results = append(subTaskresult.Results, result)
 }
 
-func (j JSON) Break(intime bool, hg types.Hostgroup)  {
+func (j JSON) Break(actionname, actiontype string, hg types.Hostgroup)  {
 	m := make(map[string]types.Hostresult)
-	for _, v := range taskresult.Results {
+	for _, v := range subTaskresult.Results {
 		m[v.Hostaddr] = v
 	}
 
 	for _, h := range hg.Ips {
 		if _, ok := m[h]; !ok {
 			item := types.Hostresult{
-				Actionname: taskresult.Results[0].Actionname,
-				Actiontype: taskresult.Results[0].Actiontype,
+				Actiontype: actiontype,
 				Groupname:  hg.Groupname,
 				Hostaddr:   h,
 				Error:      "TIMEOUT",
 				Stdout:     "",
 				Stderr:     "",
 			}
-			taskresult.Results = append(taskresult.Results, item)
+			subTaskresult.Results = append(subTaskresult.Results, item)
 		}
 	}
 }
 
-func (j JSON) Finish(intime bool, hg types.Hostgroup) {
+func (j JSON) Finish(actionname, actiontype string, hg types.Hostgroup) {
 	var taskName, staskName string
-	names := strings.Split(taskresult.Results[0].Actionname, "/")
+	names := strings.Split(actionname, "/")
 	if len(names) == 2 {
 		taskName = names[0]
 		staskName = names[1]
@@ -50,17 +60,23 @@ func (j JSON) Finish(intime bool, hg types.Hostgroup) {
 		staskName = names[0]
 	}
 
-	taskresult.Name = staskName
-	taskresults[taskName] = append(taskresults[taskName], taskresult)
-	taskresult = types.Taskresult{}
+	if tasksresults.Name != "" && tasksresults.Name != taskName {
+		result = append(result, tasksresults)
+		tasksresults = Tasksresults{}
+	}
+
+	subTaskresult.Name = staskName
+	tasksresults.Name = taskName
+	tasksresults.Results = append(tasksresults.Results, subTaskresult)
+	subTaskresult = SubTaskresult{}
 }
 
 func (j JSON) End() {
-	if len(taskresults) > 0 {
-		d, _ := json.MarshalIndent(&taskresults, "", "  ")
-		fmt.Println(string(d))
-		for key, _ := range taskresults {
-			delete(taskresults, key)
-		}
-	}
+	result = append(result, tasksresults)
+	tasksresults = Tasksresults{}
+
+	d, _ := json.MarshalIndent(&result, "", "  ")
+	fmt.Println(string(d))
+
+	result = []Tasksresults{}
 }

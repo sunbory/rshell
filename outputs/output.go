@@ -16,16 +16,16 @@ func init() {
 	O = outFactory(cfg.Outputtype)
 }
 
-func Output(result chan types.Hostresult, hg types.Hostgroup) {
+func Output(actionname, actiontype string, result chan types.Hostresult, hg types.Hostgroup) {
 	for i := 0; i < len(hg.Ips); i++ {
 		select {
 		case res := <-result:
-			O.Print(cfg.Outputintime, res, hg)
+			O.Print(actionname, actiontype, res, hg)
 		case <-time.After(time.Duration(cfg.Tasktimeout) * time.Second):
-			O.Break(cfg.Outputintime, hg)
+			O.Break(actionname, actiontype, hg)
 		}
 	}
-	O.Finish(cfg.Outputintime, hg)
+	O.Finish(actionname, actiontype, hg)
 }
 
 func outFactory(t string) outs.OUT {

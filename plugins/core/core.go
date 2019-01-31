@@ -99,7 +99,6 @@ func RunSshCommands(concurrency int, actionname, actiontype string, au types.Aut
 				err = fmt.Errorf("action not supported")
 			}
 			var result types.Hostresult
-			result.Actionname = actionname
 			result.Actiontype = actiontype
 			result.Groupname = groupname
 			result.Hostaddr = host
@@ -113,7 +112,7 @@ func RunSshCommands(concurrency int, actionname, actiontype string, au types.Aut
 		}(actionname, actiontype, hg.Groupname, ip, hg.Sshport, au.Username, au.Password, au.Privatekey, au.Passphrase, au.Sudotype, au.Sudopass,60, []string{}, cmds)
 	}
 
-	outputs.Output(taskchs, hg)
+	outputs.Output(actionname, actiontype, taskchs, hg)
 }
 
 func RunSftpCommands(concurrency int, actionname, actiontype string, au types.Auth, hg types.Hostgroup, srcFilePath, desDirPath string) {
@@ -142,7 +141,6 @@ func RunSftpCommands(concurrency int, actionname, actiontype string, au types.Au
 				err = fmt.Errorf("action not supported")
 			}
 			var result types.Hostresult
-			result.Actionname = actionname
 			result.Actiontype = actiontype
 			result.Groupname = groupname
 			result.Hostaddr = host
@@ -156,5 +154,5 @@ func RunSftpCommands(concurrency int, actionname, actiontype string, au types.Au
 		}(actionname, actiontype, hg.Groupname, ip, hg.Sshport, au.Username, au.Password, au.Privatekey, au.Passphrase, 60, []string{}, srcFilePath, desDirPath)
 	}
 
-	outputs.Output(taskchs, hg)
+	outputs.Output(actionname, actiontype, taskchs, hg)
 }

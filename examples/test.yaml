@@ -1,6 +1,6 @@
 tasks:
 - name: test ssh
-  hostgroup: hostgroup-all
+  hostgroup: hostgroup01
   subtasks:
   - name: test do
     mode: ssh
@@ -18,7 +18,7 @@ tasks:
     - date
 
 - name: test sftp
-  hostgroup: hostgroup-all
+  hostgroup: hostgroup02
   subtasks:
   - name: test upload
     mode: sftp

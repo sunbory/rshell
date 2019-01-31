@@ -14,7 +14,6 @@ type Cfg struct {
 	CmdSeparator  string     `yaml:"cmdseparator,omitempty"`
 	BlackCmdList  []BlackCmd `yaml:"blackcmdlist,omitempty"`
 	PromptString  string     `yaml:"promptstring,omitempty"`
-	Outputintime  bool       `yaml:"outputintime,omitempty"`
 	Hostgroupsize int        `yaml:"hostgroupsize,omitempty"`
 	Passcrypttype string     `yaml:"passcrypttype,omitempty"`
 	Passcryptkey  string     `yaml:"passcryptkey,omitempty"`
@@ -81,7 +80,6 @@ type Tasks struct {
 
 //Result
 type Hostresult struct {
-	Actionname string `yaml:"actionname,omitempty"`
 	Actiontype string `yaml:"actiontype,omitempty"`
 	Groupname string `yaml:"groupname,omitempty"`
 	Hostaddr string `yaml:"hostaddr,omitempty"`
@@ -92,9 +90,6 @@ type Hostresult struct {
 type Taskresult struct {
 	Name    string       `yaml:"name,omitempty"`
 	Results []Hostresult `yaml:"results,omitempty"`
-}
-type Tasksresults struct {
-	Results []Taskresult `yaml:"results,omitempty"`
 }
 
 //Update
