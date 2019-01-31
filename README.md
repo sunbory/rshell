@@ -71,7 +71,7 @@ cmdseparator: ";"                                       #The command separator, 
 promptstring: "rshell: "                                #The system prompt string, Default: "rshell: "
 hostgroupsize: 200                                      #The max number of ip in hostgroup, Default: 200
 passcrypttype: "aes"                                    #The password crypt type, support [aes], Default: ""
-passcryptkey: "I`a!M@a#H$a%P^p&Y*c(R)y_P+t,K.eY"        #The aes crypt key, length must be 32. Not be empty if passcrypttype = aes.
+passcryptkey: "i`a!M@a#H$a%P^p&Y*c(R)y_P+t,K.eY"        #The aes crypt key, length must be 32. Not be empty if passcrypttype = aes.
 outputtype: "yaml"                                      #The result output format, must be in [text, json, yaml]. Default: "text"
 blackcmdlist:                                           #The dangerous black command list, Default if =cmd or ~=cmdprefix can not run.
 - cmd: rm -rf /
@@ -93,33 +93,33 @@ authmethods:
 - name: default_user_key
   username: ttt
   privatekey: id_rsa
-  passphrase: 89fed25324dfe10da05dca3b4a7ba098e9698a8feb510d0138
+  passphrase: 81fed25324dfe10da02dca3b4a7ba098e9698a8feb510d0138
 
 - name: default_user_key_root
   username: ttt
   privatekey: id_rsa
-  passphrase: 89fed25324dfe10da05dca3b4a7ba098e9698a8feb510d0138
+  passphrase: 81fed25324dfe10da02dca3b4a7ba098e9698a8feb510d0138
   sudotype: "su -"
-  sudopass: df67be1184a01047cde653ef2d5d2a26b2c20b4d3b8094733e
+  sudopass: df61be1184a01047cde6e3ef2d5d2a26b2c20b4d3b8094733e
   
 - name: default_user_pass
   username: ttt
-  password: 96b32173e0f2a5d5f52247bcc2e651b0cf00ca09d894465a9db4
+  password: 96b12173e0f2a5d5f52257bcc2e651b0cf00ca09d894465a9db4
 
 - name: default_user_pass_root
   username: ttt
-  password: 96b32173e0f2a5d5f52267bcc2e651b0cf00ca09d894465a9db4
+  password: 96b12173e0f2a5d5f52257bcc2e651b0cf00ca09d894465a9db4
   sudotype: "su -"
-  sudopass: df67be1184a01047cde633ef2d5d2a26b2c20b4d3b8094733e
+  sudopass: df61be1184a01047cde6e3ef2d5d2a26b2c20b4d3b8094733e
   
 - name: default_root_key
   username: root
   privatekey: id_rsa
-  passphrase: 89fed25324dfe10da08dca3b4a7ba098e9698a8feb510d0138
+  passphrase: 81fed25324dfe10da02dca3b4a7ba098e9698a8feb510d0138
 
 - name: default_root_pass
   username: root
-  password: df67be1184a01047cde603ef2d5d2a26b2c20b4d3b8094733e
+  password: df61be1184a01047cde6e3ef2d5d2a26b2c20b4d3b8094733e
 
 ```
 
