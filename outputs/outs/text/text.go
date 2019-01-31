@@ -3,6 +3,7 @@ package text
 import (
 	"fmt"
 	"github.com/fatih/color"
+	"github.com/luckywinds/rshell/options"
 	"github.com/luckywinds/rshell/types"
 	"strings"
 )
@@ -74,7 +75,7 @@ func (t TEXT) End() {
 func printSTask(taskName string, st SubTaskresult, hg types.Hostgroup) {
 	pirntTaskHeader(taskName)
 
-	pirntStaskHeader(st)
+	pirntStaskHeader(st.Name)
 	m := make(map[string]types.Hostresult)
 	for _, v := range st.Results {
 		m[v.Hostaddr] = v
@@ -85,13 +86,17 @@ func printSTask(taskName string, st SubTaskresult, hg types.Hostgroup) {
 }
 
 func pirntTaskHeader(taskName string) {
-	if taskName != lastTaskName {
+	if options.IsScriptMode() && (lastTaskName == "" || taskName != lastTaskName) {
 		color.Yellow("TASK  [%-20s] ++++++++++++++++++++++++++++++++++++++++++++++++++\n", taskName)
 	}
 }
 
-func pirntStaskHeader(st SubTaskresult) {
-	color.Yellow("STASK [%-20s] ==================================================\n", st.Name)
+func pirntStaskHeader(staskName string) {
+	if options.IsScriptMode() {
+		color.Yellow("STASK [%-20s] ==================================================\n", staskName)
+	} else {
+		color.Yellow("TASK  [%-20s] ++++++++++++++++++++++++++++++++++++++++++++++++++\n", staskName)
+	}
 }
 
 func printHost(result types.Hostresult) {
