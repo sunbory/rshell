@@ -1,17 +1,31 @@
 authmethods:
-- name: alpha-env-ttt-key-su
+- name: default_user_key
   username: ttt
-  privatekey: ""                    #First auth method option[privatekey], default: ""
-  passphrase: ""                    #First auth method option[passphrase], default: ""
-  password: 56efc9c43425221af1ab2ce8d6d52a6d2926ff608d56be0601d6              #Second auth method option[password], default: ""
-  sudotype: "su -"                  #Optional：Change root command if needed, default: "su"
-  sudopass: b6c2e5ba01a5ba9b1b1eae53f839c4bf13d541da17829d8408               #Optional：root password if needed, default: ""
+  privatekey: id_rsa
+  passphrase: 89fed25324dfe10da02dca3b4a7ba098e9698a8feb510d0138
 
-- name: alpha-env-root-key
-  username: root
-  privatekey: "E:\\tmp\\id_rsa"
-  passphrase: 8f3844caf4e598719b0d9222504c9a335b7ad65eded7
+- name: default_user_key_root
+  username: ttt
+  privatekey: id_rsa
+  passphrase: 89fed25324dfe10da02dca3b4a7ba098e9698a8feb510d0138
+  sudotype: "su -"
+  sudopass: df67be1184a01047cde6e3ef2d5d2a26b2c20b4d3b8094733e
+  
+- name: default_user_pass
+  username: ttt
+  password: 96b32173e0f2a5d5f52257bcc2e651b0cf00ca09d894465a9db4
 
-- name: alpha-env-root-pass
+- name: default_user_pass_root
+  username: ttt
+  password: 96b32173e0f2a5d5f52257bcc2e651b0cf00ca09d894465a9db4
+  sudotype: "su -"
+  sudopass: df67be1184a01047cde6e3ef2d5d2a26b2c20b4d3b8094733e
+  
+- name: default_root_key
   username: root
-  password: b6c2e5ba01a5ba9b1b1eae53f839c4bf13d541da17829d8408
+  privatekey: id_rsa
+  passphrase: 89fed25324dfe10da02dca3b4a7ba098e9698a8feb510d0138
+
+- name: default_root_pass
+  username: root
+  password: df67be1184a01047cde6e3ef2d5d2a26b2c20b4d3b8094733e
