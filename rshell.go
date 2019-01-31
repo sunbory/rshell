@@ -17,7 +17,6 @@ import (
 	"github.com/luckywinds/rshell/plugins/sudo"
 	"github.com/luckywinds/rshell/plugins/upload"
 	"log"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -120,11 +119,13 @@ func interactiveRun() {
 		}
 
 		rlog.Debug.Printf("line: %s", line)
-		runCommand(line)
+		if runCommand(line) {
+			break
+		}
 	}
 }
 
-func runCommand(line string) {
+func runCommand(line string) bool {
 	line = strings.TrimLeft(line, " ")
 	switch {
 	case strings.HasPrefix(line, "load ") || line == "load":
@@ -221,7 +222,7 @@ func runCommand(line string) {
 ?
     --- Help`)
 	case line == "exit":
-		os.Exit(0)
+		return true
 	default:
 		rlog.Info.Printf("current env: %+v", opts.CurrentEnv)
 		ret, err := do.Command(*opts, line)
@@ -235,6 +236,7 @@ func runCommand(line string) {
 		}
 		outputs.End()
 	}
+	return false
 }
 
 func scriptRun() {
