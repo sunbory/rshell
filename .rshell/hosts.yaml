@@ -1,33 +1,49 @@
 hostgroups:
-- groupname: hostgroup01                  #Hostgroup name
-  authmethod: alpha-env-ttt-key-su        #Hostgrout auth method name which in auth.yaml
-  sshport: 22                             #SSH port, default: 22
-  hosts:
-  - 192.168.31.37                         #Ipv4 format
-
-- groupname: hostgroup02
-  authmethod: alpha-env-root-key
-  sshport: 22
+- groupname: dev-centos_user_key
+  authmethod: default_user_key
   hosts:
   - 192.168.31.63
+  - 192.168.31.37
 
-- groupname: hostgroup-all
-  authmethod: alpha-env-root-pass
-  sshport: 22
+- groupname: dev-centos_user_key_root
+  authmethod: default_user_key_root
+  hosts:
+  - 192.168.31.63
+  - 192.168.31.37
+
+- groupname: dev-centos_user_pass
+  authmethod: default_user_pass
+  hosts:
+  - 192.168.31.63
+  - 192.168.31.37
+
+- groupname: dev-centos_user_pass_root
+  authmethod: default_user_pass_root
+  hosts:
+  - 192.168.31.63
+  - 192.168.31.37
+
+- groupname: dev-centos_root_key
+  authmethod: default_root_key
+  hosts:
+  - 192.168.31.63
+  - 192.168.31.37
+
+- groupname: dev-centos_root_pass
+  authmethod: default_root_pass
+  hosts:
+  - 192.168.31.63
+  - 192.168.31.37
+
+- groupname: dev-suse_root_pass
+  authmethod: default_root_pass
+  hosts:
+  - 192.168.1.126
+
+- groupname: dev-centos-suse_root_pass
+  authmethod: default_root_pass
   groups:
-  - hostgroup01
-  - hostgroup02
+  - dev-centos_root_pass
+  - dev-suse_root_pass
   hosts:
   - 192.168.31.197
-
-- groupname: hostgroup03
-  authmethod: alpha-env-root-pass
-  sshport: 22
-  groups:
-  - hostgroup01
-  - hostgroup02
-  hosts:
-  - 192.168.31.197
-  hostranges:
-  - from: 192.168.1.126
-    to: 192.168.1.127

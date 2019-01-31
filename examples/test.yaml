@@ -1,6 +1,6 @@
 tasks:
 - name: test ssh
-  hostgroup: hostgroup01
+  hostgroup: dev-centos_root_pass
   subtasks:
   - name: test do
     mode: ssh
@@ -18,7 +18,7 @@ tasks:
     - date
 
 - name: test sftp
-  hostgroup: hostgroup02
+  hostgroup: dev-centos_root_pass
   subtasks:
   - name: test upload
     mode: sftp
@@ -35,4 +35,4 @@ tasks:
     mode: sftp
     ftptype: download
     srcfile: test.yaml
-    desdir: .
+    desdir: . 

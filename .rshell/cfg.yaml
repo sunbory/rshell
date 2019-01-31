@@ -1,4 +1,4 @@
-concurrency: 6                                          #The num of concurrency goroutine for hosts, Default: 6
+concurrency: 10                                         #The num of concurrency goroutine for hosts, Default: 10
 tasktimeout: 300                                        #The total timeout [second] of everyone goroutine, Default: 300
 connecttimeout: 3600                                    #The total timeout [second] of everyone ssh connection, Default: 3600
 cmdseparator: ";"                                       #The command separator, Default: ";"
@@ -9,7 +9,7 @@ passcryptkey: "I`a!M@a#H$a%P^p&Y*c(R)y_P+t,K.eY"        #The aes crypt key, leng
 outputtype: "text"                                      #The result output format, must be in [text, json, yaml]. Default: "text"
 blackcmdlist:                                           #The dangerous black command list, Default if =cmd or ~=cmdprefix can not run.
 - cmd: rm -rf /
-  cmdprefix: rm -rf /
+  cmdprefix: rm -rf /root
 mostusedcmds:                                           #The most used commands
 - pwd
 - date
