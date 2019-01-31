@@ -11,24 +11,23 @@
 > .rshell/cfg.yaml
 
 ```
-concurrency: 10                                                      #The num of concurrency goroutine for hosts, Default: 10
-tasktimeout: 300                                                     #The total timeout [second] of everyone goroutine, Default: 300
-connecttimeout: 3600                                                 #The total timeout [second] of everyone ssh connection, Default: 3600
-cmdseparator: ";"                                                    #The command separator, Default: ";"
-promptstring: "rshell: "                                             #The system prompt string, Default: "rshell: "
-outputintime: true                                                   #The output in time, Default: false
-hostgroupsize: 200                                                   #The max number of ip in hostgroup, Default: 200
-passcrypttype: "aes"                                                 #The password crypt type, support [aes], Default: ""
-passcryptkey: "I`a!M@a#H$a%P^p&Y*c(R)y_P+t,K.eY"                     #The aes crypt key, length must be 32. Not be empty if passcrypttype = aes.
-outputtype: "text"                                                   #The result output format, Default: "text"
-blackcmdlist:                                                        #The dangerous black command list, Default if =cmd or ~=cmdprefix can not run.
-- cmd: rm -rf /                                                      
-  cmdprefix: rm -rf /                                                
-mostusedcmds:                                                        #The most used command list
-- pwd                                                                
-- date                                                               
-- whoami                                                             
-updateserver:                                                        #The auto update server address list
+concurrency: 6                                          #The num of concurrency goroutine for hosts, Default: 6
+tasktimeout: 300                                        #The total timeout [second] of everyone goroutine, Default: 300
+connecttimeout: 3600                                    #The total timeout [second] of everyone ssh connection, Default: 3600
+cmdseparator: ";"                                       #The command separator, Default: ";"
+promptstring: "rshell: "                                #The system prompt string, Default: "rshell: "
+hostgroupsize: 200                                      #The max number of ip in hostgroup, Default: 200
+passcrypttype: "aes"                                    #The password crypt type, support [aes], Default: ""
+passcryptkey: "I`a!M@a#H$a%P^p&Y*c(R)y_P+t,K.eY"        #The aes crypt key, length must be 32. Not be empty if passcrypttype = aes.
+outputtype: "text"                                      #The result output format, must be in [text, json, yaml]. Default: "text"
+blackcmdlist:                                           #The dangerous black command list, Default if =cmd or ~=cmdprefix can not run.
+- cmd: rm -rf /
+  cmdprefix: rm -rf /
+mostusedcmds:                                           #The most used commands
+- pwd
+- date
+- whoami
+updateserver:                                           #The auto update server address
 - https://github.com/luckywinds/rshell/raw/master/releases
 ```
 
