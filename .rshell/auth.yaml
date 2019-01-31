@@ -2,30 +2,30 @@ authmethods:
 - name: default_user_key
   username: ttt
   privatekey: id_rsa
-  passphrase: 89fed25324dfe10da02dca3b4a7ba098e9698a8feb510d0138
+  passphrase: 81fed25324dfe10da02dca3b4a7ba098e9698a8feb510d0138
 
 - name: default_user_key_root
   username: ttt
   privatekey: id_rsa
-  passphrase: 89fed25324dfe10da02dca3b4a7ba098e9698a8feb510d0138
+  passphrase: 81fed25324dfe10da02dca3b4a7ba098e9698a8feb510d0138
   sudotype: "su -"
-  sudopass: df67be1184a01047cde6e3ef2d5d2a26b2c20b4d3b8094733e
+  sudopass: df61be1184a01047cde6e3ef2d5d2a26b2c20b4d3b8094733e
   
 - name: default_user_pass
   username: ttt
-  password: 96b32173e0f2a5d5f52257bcc2e651b0cf00ca09d894465a9db4
+  password: 96b12173e0f2a5d5f52257bcc2e651b0cf00ca09d894465a9db4
 
 - name: default_user_pass_root
   username: ttt
-  password: 96b32173e0f2a5d5f52257bcc2e651b0cf00ca09d894465a9db4
+  password: 96b12173e0f2a5d5f52257bcc2e651b0cf00ca09d894465a9db4
   sudotype: "su -"
-  sudopass: df67be1184a01047cde6e3ef2d5d2a26b2c20b4d3b8094733e
+  sudopass: df61be1184a01047cde6e3ef2d5d2a26b2c20b4d3b8094733e
   
 - name: default_root_key
   username: root
   privatekey: id_rsa
-  passphrase: 89fed25324dfe10da02dca3b4a7ba098e9698a8feb510d0138
+  passphrase: 81fed25324dfe10da02dca3b4a7ba098e9698a8feb510d0138
 
 - name: default_root_pass
   username: root
-  password: df67be1184a01047cde6e3ef2d5d2a26b2c20b4d3b8094733e
+  password: df61be1184a01047cde6e3ef2d5d2a26b2c20b4d3b8094733e
