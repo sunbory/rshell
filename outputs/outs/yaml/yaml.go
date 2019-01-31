@@ -2,6 +2,7 @@ package yaml
 
 import (
 	"fmt"
+	"github.com/luckywinds/rshell/options"
 	"github.com/luckywinds/rshell/types"
 	"gopkg.in/yaml.v2"
 	"strings"
@@ -75,8 +76,13 @@ func (y YAML) End() {
 	result = append(result, tasksresults)
 	tasksresults = Tasksresults{}
 
-	d, _ := yaml.Marshal(&result)
-	fmt.Println(string(d))
+	if options.IsScriptMode() {
+		d, _ := yaml.Marshal(&result)
+		fmt.Println(string(d))
+	} else {
+		d, _ := yaml.Marshal(&result[0].Results[0].Results)
+		fmt.Println(string(d))
+	}
 
 	result = []Tasksresults{}
 }

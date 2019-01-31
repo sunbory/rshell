@@ -3,6 +3,7 @@ package json
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/luckywinds/rshell/options"
 	"github.com/luckywinds/rshell/types"
 	"strings"
 )
@@ -74,9 +75,12 @@ func (j JSON) Finish(actionname, actiontype string, hg types.Hostgroup) {
 func (j JSON) End() {
 	result = append(result, tasksresults)
 	tasksresults = Tasksresults{}
-
-	d, _ := json.MarshalIndent(&result, "", "  ")
-	fmt.Println(string(d))
-
+	if options.IsScriptMode() {
+		d, _ := json.MarshalIndent(&result, "", "  ")
+		fmt.Println(string(d))
+	} else {
+		d, _ := json.MarshalIndent(&result[0].Results[0].Results, "", "  ")
+		fmt.Println(string(d))
+	}
 	result = []Tasksresults{}
 }

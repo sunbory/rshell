@@ -159,6 +159,7 @@ func runCommand(line string) {
 				prompt.AddCmd(strings.Trim(value, " "))
 			}
 		}
+		outputs.End()
 	case strings.HasPrefix(line, "download ") || line == "download":
 		rlog.Info.Printf("current env: %+v", opts.CurrentEnv)
 		ret, err := download.Command(*opts, line)
@@ -169,6 +170,7 @@ func runCommand(line string) {
 			prompt.AddSrcFile(strings.Trim(ret[0], " "))
 			prompt.AddDesDir(strings.Trim(ret[1], " "))
 		}
+		outputs.End()
 	case strings.HasPrefix(line, "upload ") || line == "upload":
 		rlog.Info.Printf("current env: %+v", opts.CurrentEnv)
 		ret, err := upload.Command(*opts, line)
@@ -179,6 +181,7 @@ func runCommand(line string) {
 			prompt.AddSrcFile(strings.Trim(ret[0], " "))
 			prompt.AddDesDir(strings.Trim(ret[1], " "))
 		}
+		outputs.End()
 	case strings.HasPrefix(line, "encrypt ") || line == "encrypt":
 		rlog.Info.Printf("current env: %+v", opts.CurrentEnv)
 		ret, err := encrypt.Command(*opts, line)
@@ -230,8 +233,8 @@ func runCommand(line string) {
 				prompt.AddCmd(strings.Trim(value, " "))
 			}
 		}
+		outputs.End()
 	}
-	outputs.End()
 }
 
 func scriptRun() {
