@@ -95,10 +95,19 @@ func commandRun() {
 func interactiveRun() {
 	showIntro()
 	opts.CurrentEnv = options.LoadEnv()
-	if opts.CurrentEnv.Authname != "" && opts.CurrentEnv.Hostgroupname != "" && opts.CurrentEnv.Port != 0 {
-		opts.Cfg.PromptString = "[" + opts.CurrentEnv.Authname + "@" + opts.CurrentEnv.Hostgroupname + ":" + strconv.Itoa(opts.CurrentEnv.Port) + "]# "
-		prompt.AddHostgroup("-H" + opts.CurrentEnv.Hostgroupname)
+	if _, ok := opts.Hostgroupsm[opts.CurrentEnv.Hostgroupname]; ok || checkers.IsIpv4(opts.CurrentEnv.Hostgroupname) {
+		if _, ok := opts.Authsm[opts.CurrentEnv.Authname]; ok && opts.CurrentEnv.Port > 0 && opts.CurrentEnv.Port < 65535 {
+			opts.Cfg.PromptString = "[" + opts.CurrentEnv.Authname + "@" + opts.CurrentEnv.Hostgroupname + ":" + strconv.Itoa(opts.CurrentEnv.Port) + "]# "
+			prompt.AddHostgroup("-H" + opts.CurrentEnv.Hostgroupname)
+		} else {
+			rlog.Warn.Printf("current env [%+v] auth or port illegal. skip it.", opts.CurrentEnv)
+			opts.CurrentEnv = options.CurrentEnv{}
+		}
+	} else {
+		rlog.Warn.Printf("current env [%+v] host illegal. skip it.", opts.CurrentEnv)
+		opts.CurrentEnv = options.CurrentEnv{}
 	}
+	rlog.Debug.Printf("current env: %+v", opts.CurrentEnv)
 
 	l, err := prompt.New(opts.Cfg, opts.Hostgroups)
 	if err != nil {
