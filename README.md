@@ -28,6 +28,9 @@ go get github.com/luckywinds/rshell
 go build rshell.go
 ```
 
+- rshell：    Linux版本
+- rshell.exe：Windows版本
+
 ## 目录
 
 > Linux和Windows用法相同，注意基本的路径分割符区别即可
@@ -124,6 +127,8 @@ authmethods:
 ```
 
 > 样例的密码都是随机的，自行根据需求更改即可，通过encrypt和decrypt进行加解密
+
+> 如果想直接填写明文不需要加密的话，系统配置项passcrypttype留空即可
 
 ### 主机信息配置
 
