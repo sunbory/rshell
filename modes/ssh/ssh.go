@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func DO(groupname, host string, port int, user, pass, keyname, passphrase string, timeout int, ciphers, cmds []string) (string, string, error) {
+func DO(groupname, host string, port int, user, pass, keyname, passphrase, sudotype, sudopass string, timeout int, ciphers, cmds []string) (string, string, error) {
 	var (
 		session *ssh.Session
 		stderr  bytes.Buffer
@@ -44,7 +44,27 @@ func DO(groupname, host string, port int, user, pass, keyname, passphrase string
 		cmds = append(cmds, "exit")
 	}
 
-	for _, cmd := range cmds {
+	var newcmds = []string{}
+	if sudotype != "" {
+		newcmds = append(newcmds, cmds[:2]...)
+		for _, value := range cmds[2 : len(cmds)-2] {
+			if value != "" {
+				newcmds = append(newcmds, value)
+				newcmds = append(newcmds, "rrretcode=$?;[ $rrretcode -eq 0 ] || exit $rrretcode")
+			}
+		}
+		newcmds = append(newcmds, cmds[len(cmds)-2:]...)
+	} else {
+		for _, value := range cmds[:len(cmds)-1] {
+			if value != "" {
+				newcmds = append(newcmds, value)
+				newcmds = append(newcmds, "rrretcode=$?;[ $rrretcode -eq 0 ] || exit $rrretcode")
+			}
+		}
+		newcmds = append(newcmds, cmds[len(cmds)-1])
+	}
+
+	for _, cmd := range newcmds {
 		if _, e := fmt.Fprintf(stdin, "%s\n", cmd); e != nil {
 			break
 		}
@@ -68,5 +88,5 @@ func SUDO(groupname, host string, port int, user, pass, keyname, passphrase, sud
 	cmds = append([]string{sudotype, sudopass}, cmds...)
 	cmds = append(cmds, "exit")
 
-	return DO(groupname, host, port, user, pass, keyname, passphrase, timeout, ciphers, cmds)
+	return DO(groupname, host, port, user, pass, keyname, passphrase, sudotype, sudopass, timeout, ciphers, cmds)
 }
