@@ -92,7 +92,7 @@ func RunSshCommands(concurrency int, actionname, actiontype string, au types.Aut
 			var err error
 			switch actiontype {
 			case "do":
-				stdout, stderr, err = ssh.DO(groupname, host, port, user, pass, keyname, passphrase, timeout, ciphers, cmds)
+				stdout, stderr, err = ssh.DO(groupname, host, port, user, pass, keyname, passphrase, "", "", timeout, ciphers, cmds)
 			case "sudo":
 				stdout, stderr, err = ssh.SUDO(groupname, host, port, user, pass, keyname, passphrase, sudotype, sudopass, timeout, ciphers, cmds)
 			default:
