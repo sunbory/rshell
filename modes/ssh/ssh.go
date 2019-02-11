@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/luckywinds/rshell/modes/client"
 	"golang.org/x/crypto/ssh"
-	"strings"
+	"time"
 )
 
 func DO(groupname, host string, port int, user, pass, keyname, passphrase, sudotype, sudopass string, timeout int, ciphers, cmds []string) (string, string, error) {
@@ -40,34 +40,27 @@ func DO(groupname, host string, port int, user, pass, keyname, passphrase, sudot
 		return "", "", err
 	}
 
-	if cmds[len(cmds)-1] != "exit" && !strings.HasPrefix(cmds[len(cmds)-1], "exit ") {
-		cmds = append(cmds, "exit")
-	}
-
-	var newcmds = []string{}
 	if sudotype != "" {
-		newcmds = append(newcmds, cmds[:2]...)
-		for _, value := range cmds[2 : len(cmds)-2] {
-			if value != "" {
-				newcmds = append(newcmds, value)
-				newcmds = append(newcmds, "rrretcode=$?;[ $rrretcode -eq 0 ] || exit $rrretcode")
-			}
-		}
-		newcmds = append(newcmds, cmds[len(cmds)-2:]...)
-	} else {
-		for _, value := range cmds[:len(cmds)-1] {
-			if value != "" {
-				newcmds = append(newcmds, value)
-				newcmds = append(newcmds, "rrretcode=$?;[ $rrretcode -eq 0 ] || exit $rrretcode")
-			}
-		}
-		newcmds = append(newcmds, cmds[len(cmds)-1])
-	}
+		fmt.Fprintf(stdin, "%s\n", sudotype)
+		time.Sleep(time.Millisecond * 100)
+		fmt.Fprintf(stdin, "%s\n", sudopass)
+		time.Sleep(time.Millisecond * 100)
+		fmt.Fprintf(stdin, "%s\n", "rrretcode=$?;[ $rrretcode -eq 0 ] || exit $rrretcode")
 
-	for _, cmd := range newcmds {
-		if _, e := fmt.Fprintf(stdin, "%s\n", cmd); e != nil {
-			break
+		for _, cmd := range cmds {
+			fmt.Fprintf(stdin, "%s\n", cmd)
+			fmt.Fprintf(stdin, "%s\n", "rrretcode=$?;[ $rrretcode -eq 0 ] || exit $rrretcode")
 		}
+
+		fmt.Fprintf(stdin, "%s\n", "exit")
+		fmt.Fprintf(stdin, "%s\n", "exit")
+	} else {
+		for _, cmd := range cmds {
+			fmt.Fprintf(stdin, "%s\n", cmd)
+			fmt.Fprintf(stdin, "%s\n", "rrretcode=$?;[ $rrretcode -eq 0 ] || exit $rrretcode")
+		}
+
+		fmt.Fprintf(stdin, "%s\n", "exit")
 	}
 
 	err = session.Wait()
@@ -82,11 +75,6 @@ func SUDO(groupname, host string, port int, user, pass, keyname, passphrase, sud
 	if sudotype == "" {
 		sudotype = "su"
 	}
-	if cmds[len(cmds)-1] != "exit" && !strings.HasPrefix(cmds[len(cmds)-1], "exit ") {
-		cmds = append(cmds, "exit")
-	}
-	cmds = append([]string{sudotype, sudopass}, cmds...)
-	cmds = append(cmds, "exit")
 
 	return DO(groupname, host, port, user, pass, keyname, passphrase, sudotype, sudopass, timeout, ciphers, cmds)
 }
