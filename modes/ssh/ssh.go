@@ -47,17 +47,23 @@ func DO(groupname, host string, port int, user, pass, keyname, passphrase, sudot
 		time.Sleep(time.Millisecond * 100)
 		fmt.Fprintf(stdin, "%s\n", "rrretcode=$?;[ $rrretcode -eq 0 ] || exit $rrretcode")
 
+		fmt.Fprintf(stdin, "%s\n", "echo > .rshell.sh")
 		for _, cmd := range cmds {
-			fmt.Fprintf(stdin, "%s\n", cmd)
-			fmt.Fprintf(stdin, "%s\n", "rrretcode=$?;[ $rrretcode -eq 0 ] || exit $rrretcode")
+			if cmd != "" {
+				fmt.Fprintf(stdin, "%s\n", "echo '" + cmd + "' >> .rshell.sh")
+				fmt.Fprintf(stdin, "%s\n", "echo 'rrretcode=$?;[ $rrretcode -eq 0 ] || exit $rrretcode' >> .rshell.sh")
+			}
 		}
+		fmt.Fprintf(stdin, "%s\n", "sh .rshell.sh")
 
 		fmt.Fprintf(stdin, "%s\n", "exit")
 		fmt.Fprintf(stdin, "%s\n", "exit")
 	} else {
 		for _, cmd := range cmds {
-			fmt.Fprintf(stdin, "%s\n", cmd)
-			fmt.Fprintf(stdin, "%s\n", "rrretcode=$?;[ $rrretcode -eq 0 ] || exit $rrretcode")
+			if cmd != "" {
+				fmt.Fprintf(stdin, "%s\n", cmd)
+				fmt.Fprintf(stdin, "%s\n", "rrretcode=$?;[ $rrretcode -eq 0 ] || exit $rrretcode")
+			}
 		}
 
 		fmt.Fprintf(stdin, "%s\n", "exit")
