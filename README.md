@@ -302,13 +302,13 @@ encrypt cleartext_password
     --- Encrypt cleartext_password with aes 256 cfb
 
     Examples:
-    - encrypt Cloud12#$
+    - encrypt rshell@123
 
 decrypt ciphertext_password
     --- Decrypt ciphertext_password with aes 256 cfb
 
     Examples:
-    - decrypt 1c15b86d686758158d5fd9551c0ccca6168a2c80f149c38bca
+    - decrypt 20d59477070d93439a5390e9f425ec4afe1c781775727c35817f
 
 exit
     --- Exit rshell
