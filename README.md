@@ -252,6 +252,8 @@ group2:
 
 ## 使用说明
 
+> 首字符串load/sudo/download/upload/encrypt/decrypt/exit将被识别为rshell关键字，操作中如有冲突请发散思考。
+
 ## 交互式命令行模式
 
 ### 语法
