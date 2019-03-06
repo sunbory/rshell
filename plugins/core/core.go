@@ -114,7 +114,7 @@ func RunSshCommands(timeout, concurrency int, actionname, actiontype string, au 
 
 			select {
 			case <-ctx.Done():
-				rlog.Warn.Printf("ACTION TIMEOUT [%v:%v:%v:%v:%v]", actionname, actiontype, hg.Groupname, ip, hg.Sshport)
+				rlog.Warn.Printf("ACTION TIMEOUT [%v:%v:%v:%v:%v]", actionname, actiontype, groupname, host, port)
 				return
 			default:
 				taskchs <- result
@@ -165,7 +165,7 @@ func RunSftpCommands(timeout, concurrency int, actionname, actiontype string, au
 
 			select {
 			case <-ctx.Done():
-				rlog.Warn.Printf("ACTION TIMEOUT [%v:%v:%v:%v:%v]", actionname, actiontype, hg.Groupname, ip, hg.Sshport)
+				rlog.Warn.Printf("ACTION TIMEOUT [%v:%v:%v:%v:%v]", actionname, actiontype, groupname, host, port)
 				return
 			default:
 				taskchs <- result
