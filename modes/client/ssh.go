@@ -12,11 +12,11 @@ import (
 
 var dialcache *cache.Cache
 
-func SetupCache(ttl int) {
+func SetupDialCache(ttl int) {
 	if ttl != 0 {
-		dialcache = cache.New(time.Duration(ttl)*time.Second, time.Duration(ttl + 10)*time.Second)
+		dialcache = cache.New(time.Duration(ttl)*time.Second, time.Duration(10)*time.Second)
 	} else {
-		dialcache = cache.New(3600*time.Second, 3610*time.Second)
+		dialcache = cache.New(3600*time.Second, 10*time.Second)
 	}
 	go func(c *cache.Cache) {
 		t := time.NewTicker(10 * time.Second)
@@ -32,7 +32,7 @@ func SetupCache(ttl int) {
 	}(dialcache)
 }
 
-func New(groupname, host string, port int, user, pass, keyname, passphrase string, timeout int, ciphers []string) (*ssh.Client, error) {
+func New(groupname, host string, port int, user, pass, keyname, passphrase string, ciphers []string) (*ssh.Client, error) {
 	if groupname == "" {
 		groupname = "DEFAULT"
 	}

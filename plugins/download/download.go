@@ -38,7 +38,7 @@ func Command(o options.Options, line string) ([]string, error) {
 		return []string{}, err
 	}
 
-	core.RunSftpCommands(o.Cfg.Concurrency, ACTION, ACTION, au, hg, as[0], as[1])
+	core.RunSftpCommands(o.Cfg.Tasktimeout, o.Cfg.Concurrency, ACTION, ACTION, au, hg, as[0], as[1])
 
 	rlog.Debug.Printf("ret: %s", as)
 	return as, nil
@@ -57,7 +57,7 @@ func Script(o options.Options, name string, stask types.Subtask) error {
 		return err
 	}
 
-	core.RunSftpCommands(o.Cfg.Concurrency, name + "/" + stask.Name, ACTION, au, hg, stask.SrcFile, stask.DesDir)
+	core.RunSftpCommands(o.Cfg.Tasktimeout, o.Cfg.Concurrency, name + "/" + stask.Name, ACTION, au, hg, stask.SrcFile, stask.DesDir)
 
 	return nil
 }

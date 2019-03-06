@@ -21,7 +21,7 @@ func Output(actionname, actiontype string, result chan types.Hostresult, hg type
 		select {
 		case res := <-result:
 			O.Print(actionname, actiontype, res, hg)
-		case <-time.After(time.Duration(cfg.Tasktimeout) * time.Second):
+		case <-time.After(time.Duration(cfg.Tasktimeout + 3) * time.Second):
 			O.Break(actionname, actiontype, hg)
 		}
 	}
