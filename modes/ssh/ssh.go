@@ -8,14 +8,14 @@ import (
 	"time"
 )
 
-func DO(groupname, host string, port int, user, pass, keyname, passphrase, sudotype, sudopass string, timeout int, ciphers, cmds []string) (string, string, error) {
+func DO(groupname, host string, port int, user, pass, keyname, passphrase, sudotype, sudopass string, ciphers, cmds []string) (string, string, error) {
 	var (
 		session *ssh.Session
 		stderr  bytes.Buffer
 		stdout  bytes.Buffer
 		err     error
 	)
-	c, err := client.New(groupname, host, port, user, pass, keyname, passphrase, timeout, ciphers)
+	c, err := client.New(groupname, host, port, user, pass, keyname, passphrase, ciphers)
 	if err != nil {
 		return "", "", err
 	}
@@ -74,7 +74,7 @@ func DO(groupname, host string, port int, user, pass, keyname, passphrase, sudot
 	return stdout.String(), stderr.String(), err
 }
 
-func SUDO(groupname, host string, port int, user, pass, keyname, passphrase, sudotype, sudopass string, timeout int, ciphers, cmds []string) (string, string, error) {
+func SUDO(groupname, host string, port int, user, pass, keyname, passphrase, sudotype, sudopass string, ciphers, cmds []string) (string, string, error) {
 	if len(cmds) == 0 {
 		return "", "", fmt.Errorf("cmds[%v] empty", cmds)
 	}
@@ -82,5 +82,5 @@ func SUDO(groupname, host string, port int, user, pass, keyname, passphrase, sud
 		sudotype = "su"
 	}
 
-	return DO(groupname, host, port, user, pass, keyname, passphrase, sudotype, sudopass, timeout, ciphers, cmds)
+	return DO(groupname, host, port, user, pass, keyname, passphrase, sudotype, sudopass, ciphers, cmds)
 }

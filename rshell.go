@@ -52,10 +52,10 @@ func setup() {
 
 	go update.Update(opts.Cfg, version)
 
-	client.SetupCache(opts.Cfg.Connecttimeout)
+	client.SetupDialCache(opts.Cfg.Connecttimeout)
 }
 
-var version = "8.2"
+var version = "8.3"
 func showIntro() {
 	fmt.Println(`
  ______     ______     __  __     ______     __         __

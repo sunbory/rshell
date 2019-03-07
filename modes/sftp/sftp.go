@@ -12,13 +12,13 @@ import (
 	"strings"
 )
 
-func Upload(groupname, host string, port int, user, pass, keyname, passphrase string, timeout int, ciphers []string, srcFilePath, desDirPath string) ([]string, error) {
+func Upload(groupname, host string, port int, user, pass, keyname, passphrase string, ciphers []string, srcFilePath, desDirPath string) ([]string, error) {
 	var (
 		session *sftp.Client
 		err     error
 	)
 
-	c, err := client.New(groupname, host, port, user, pass, keyname, passphrase, timeout, ciphers)
+	c, err := client.New(groupname, host, port, user, pass, keyname, passphrase, ciphers)
 	if err != nil {
 		return nil, err
 	}
@@ -64,13 +64,13 @@ func Upload(groupname, host string, port int, user, pass, keyname, passphrase st
 	}
 }
 
-func Download(groupname, host string, port int, user, pass, keyname, passphrase string, timeout int, ciphers []string, srcFilePath, desDirPath string) ([]string, error) {
+func Download(groupname, host string, port int, user, pass, keyname, passphrase string, ciphers []string, srcFilePath, desDirPath string) ([]string, error) {
 	var (
 		session *sftp.Client
 		err     error
 	)
 
-	c, err := client.New(groupname, host, port, user, pass, keyname, passphrase, timeout, ciphers)
+	c, err := client.New(groupname, host, port, user, pass, keyname, passphrase, ciphers)
 	if err != nil {
 		return nil, err
 	}

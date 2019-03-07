@@ -43,7 +43,7 @@ func Command(o options.Options, line string) ([]string, error) {
 		return []string{}, err
 	}
 
-	core.RunSshCommands(o.Cfg.Concurrency, ACTION, ACTION, au, hg, as)
+	core.RunSshCommands(o.Cfg.Tasktimeout, o.Cfg.Concurrency, ACTION, ACTION, au, hg, as)
 
 	rlog.Debug.Printf("ret: %s", as)
 	return as, nil
@@ -62,7 +62,7 @@ func Script(o options.Options, name string, stask types.Subtask) error {
 		return err
 	}
 
-	core.RunSshCommands(o.Cfg.Concurrency, name + "/" + stask.Name, ACTION, au, hg, stask.Cmds)
+	core.RunSshCommands(o.Cfg.Tasktimeout, o.Cfg.Concurrency, name + "/" + stask.Name, ACTION, au, hg, stask.Cmds)
 
 	return nil
 }

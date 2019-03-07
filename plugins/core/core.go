@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"fmt"
 	"github.com/luckywinds/rshell/modes/sftp"
 	"github.com/luckywinds/rshell/modes/ssh"
@@ -11,6 +12,7 @@ import (
 	"github.com/luckywinds/rshell/pkg/rlog"
 	"github.com/luckywinds/rshell/types"
 	"strings"
+	"time"
 )
 
 func GetArgFields(line, keyword, sep string) ([]string) {
@@ -76,7 +78,7 @@ func GetPlainPassword(c types.Cfg, au types.Auth) (nau types.Auth, err error) {
 	return au,nil
 }
 
-func RunSshCommands(concurrency int, actionname, actiontype string, au types.Auth, hg types.Hostgroup, cmds []string) {
+func RunSshCommands(timeout, concurrency int, actionname, actiontype string, au types.Auth, hg types.Hostgroup, cmds []string) {
 	rlog.Info.Printf("concurrency: %d, actionname: %s, actiontype: %s, au: %+v, hg: %+v, cmds: %#v", concurrency, actionname, actiontype, au, hg, cmds)
 
 	limit := make(chan bool, concurrency)
@@ -85,16 +87,18 @@ func RunSshCommands(concurrency int, actionname, actiontype string, au types.Aut
 	taskchs := make(chan types.Hostresult, len(hg.Ips))
 	defer close(taskchs)
 
+	ctx, _ := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+
 	for _, ip := range hg.Ips {
 		limit <- true
-		go func(actionname, actiontype, groupname, host string, port int, user, pass, keyname, passphrase, sudotype, sudopass string, timeout int, ciphers, cmds []string) {
+		go func(ctx context.Context, actionname, actiontype, groupname, host string, port int, user, pass, keyname, passphrase, sudotype, sudopass string, ciphers, cmds []string) {
 			var stdout, stderr string
 			var err error
 			switch actiontype {
 			case "do":
-				stdout, stderr, err = ssh.DO(groupname, host, port, user, pass, keyname, passphrase, "", "", timeout, ciphers, cmds)
+				stdout, stderr, err = ssh.DO(groupname, host, port, user, pass, keyname, passphrase, "", "", ciphers, cmds)
 			case "sudo":
-				stdout, stderr, err = ssh.SUDO(groupname, host, port, user, pass, keyname, passphrase, sudotype, sudopass, timeout, ciphers, cmds)
+				stdout, stderr, err = ssh.SUDO(groupname, host, port, user, pass, keyname, passphrase, sudotype, sudopass, ciphers, cmds)
 			default:
 				err = fmt.Errorf("action not supported")
 			}
@@ -107,15 +111,22 @@ func RunSshCommands(concurrency int, actionname, actiontype string, au types.Aut
 			if err != nil {
 				result.Error = err.Error()
 			}
-			taskchs <- result
-			<-limit
-		}(actionname, actiontype, hg.Groupname, ip, hg.Sshport, au.Username, au.Password, au.Privatekey, au.Passphrase, au.Sudotype, au.Sudopass,60, []string{}, cmds)
+
+			select {
+			case <-ctx.Done():
+				rlog.Warn.Printf("ACTION TIMEOUT [%v:%v:%v:%v:%v]", actionname, actiontype, groupname, host, port)
+				return
+			default:
+				taskchs <- result
+				<-limit
+			}
+		}(ctx, actionname, actiontype, hg.Groupname, ip, hg.Sshport, au.Username, au.Password, au.Privatekey, au.Passphrase, au.Sudotype, au.Sudopass, []string{}, cmds)
 	}
 
 	outputs.Output(actionname, actiontype, taskchs, hg)
 }
 
-func RunSftpCommands(concurrency int, actionname, actiontype string, au types.Auth, hg types.Hostgroup, srcFilePath, desDirPath string) {
+func RunSftpCommands(timeout, concurrency int, actionname, actiontype string, au types.Auth, hg types.Hostgroup, srcFilePath, desDirPath string) {
 	rlog.Info.Printf("concurrency: %d, actionname: %s, actiontype: %s, au: %+v, hg: %+v, srcFilePath: %s, desDirPath: %s", concurrency, actionname, actiontype, au, hg, srcFilePath, desDirPath)
 
 	limit := make(chan bool, concurrency)
@@ -124,9 +135,11 @@ func RunSftpCommands(concurrency int, actionname, actiontype string, au types.Au
 	taskchs := make(chan types.Hostresult, len(hg.Ips))
 	defer close(taskchs)
 
+	ctx, _ := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+
 	for _, ip := range hg.Ips {
 		limit <- true
-		go func(actionname, actiontype, groupname, host string, port int, user, pass, keyname, passphrase string, timeout int, ciphers []string, srcFilePath, desDirPath string) {
+		go func(ctx context.Context, actionname, actiontype, groupname, host string, port int, user, pass, keyname, passphrase string, ciphers []string, srcFilePath, desDirPath string) {
 			if !strings.HasSuffix(desDirPath, "/") {
 				desDirPath = desDirPath + "/"
 			}
@@ -134,9 +147,9 @@ func RunSftpCommands(concurrency int, actionname, actiontype string, au types.Au
 			var err error
 			switch actiontype {
 			case "download":
-				sfs, err = sftp.Download(groupname, host, port, user, pass, keyname, passphrase, timeout, ciphers, srcFilePath, desDirPath)
+				sfs, err = sftp.Download(groupname, host, port, user, pass, keyname, passphrase, ciphers, srcFilePath, desDirPath)
 			case "upload":
-				sfs, err = sftp.Upload(groupname, host, port, user, pass, keyname, passphrase, timeout, ciphers, srcFilePath, desDirPath)
+				sfs, err = sftp.Upload(groupname, host, port, user, pass, keyname, passphrase, ciphers, srcFilePath, desDirPath)
 			default:
 				err = fmt.Errorf("action not supported")
 			}
@@ -149,9 +162,16 @@ func RunSftpCommands(concurrency int, actionname, actiontype string, au types.Au
 			} else {
 				result.Stderr = "FAILED [" + srcFilePath + " -> " + desDirPath + "] @" + err.Error()
 			}
-			taskchs <- result
-			<-limit
-		}(actionname, actiontype, hg.Groupname, ip, hg.Sshport, au.Username, au.Password, au.Privatekey, au.Passphrase, 60, []string{}, srcFilePath, desDirPath)
+
+			select {
+			case <-ctx.Done():
+				rlog.Warn.Printf("ACTION TIMEOUT [%v:%v:%v:%v:%v]", actionname, actiontype, groupname, host, port)
+				return
+			default:
+				taskchs <- result
+				<-limit
+			}
+		}(ctx, actionname, actiontype, hg.Groupname, ip, hg.Sshport, au.Username, au.Password, au.Privatekey, au.Passphrase, []string{}, srcFilePath, desDirPath)
 	}
 
 	outputs.Output(actionname, actiontype, taskchs, hg)

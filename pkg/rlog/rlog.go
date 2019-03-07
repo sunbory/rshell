@@ -47,7 +47,7 @@ func rotate() {
 		log.Fatalf("glog the log file [%s] error: %v\n", logfileprefix, err)
 	}
 	if len(lfs) > 10 {
-		sort.Strings(lfs)
+		sort.Sort(sort.Reverse(sort.StringSlice(lfs)))
 		for _, value := range lfs[10:] {
 			os.Remove(value)
 		}
