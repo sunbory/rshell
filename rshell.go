@@ -55,7 +55,7 @@ func setup() {
 	client.SetupDialCache(opts.Cfg.Connecttimeout)
 }
 
-var version = "8.3"
+var version = "8.5"
 func showIntro() {
 	fmt.Println(`
  ______     ______     __  __     ______     __         __
