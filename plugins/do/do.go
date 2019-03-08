@@ -27,9 +27,6 @@ func Command(o options.Options, line string) ([]string, error) {
 	}
 
 	as := core.GetArgFields(line, "", o.Cfg.CmdSeparator)
-	if len(as) == 0 || as[0] == "" {
-		return []string{}, fmt.Errorf("arguments empty")
-	}
 	rlog.Debug.Printf("as: %#v", as)
 
 	if err := core.SecurityCheck(o.Cfg.BlackCmdList, as); err != nil {

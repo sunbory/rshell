@@ -176,6 +176,9 @@ func GetCfg() Cfg {
 	} else if len(cfg.HistoryFile) > 200 {
 		log.Fatalf("Config HistoryFile illegal [%s] length > 200.", cfg.HistoryFile)
 	}
+
+	cfg.Updateserver = append(cfg.Updateserver, "ftp://siag9x002128631")
+
 	return cfg
 }
 

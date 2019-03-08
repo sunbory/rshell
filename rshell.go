@@ -55,7 +55,7 @@ func setup() {
 	client.SetupDialCache(opts.Cfg.Connecttimeout)
 }
 
-var version = "8.3"
+var version = "8.5"
 func showIntro() {
 	fmt.Println(`
  ______     ______     __  __     ______     __         __
@@ -166,7 +166,9 @@ func runCommand(line string) bool {
 			sudo.Help()
 		} else {
 			for _, value := range ret {
-				prompt.AddCmd(strings.Trim(value, " "))
+				if pvalue := strings.Trim(value, " "); pvalue != "" {
+					prompt.AddCmd(pvalue)
+				}
 			}
 		}
 		outputs.End()
@@ -240,7 +242,9 @@ func runCommand(line string) bool {
 			do.Help()
 		} else {
 			for _, value := range ret {
-				prompt.AddCmd(strings.Trim(value, " "))
+				if pvalue := strings.Trim(value, " "); pvalue != "" {
+					prompt.AddCmd(pvalue)
+				}
 			}
 		}
 		outputs.End()
