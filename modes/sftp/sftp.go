@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-func Upload(groupname, host string, port int, user, pass, keyname, passphrase string, ciphers []string, srcFilePath, desDirPath string) ([]string, error) {
+func Upload(groupname, host string, port int, user, pass, keyname, passphrase string, ciphers []string, maxPacketSize int, srcFilePath, desDirPath string) ([]string, error) {
 	var (
 		session *sftp.Client
 		err     error
@@ -23,7 +23,7 @@ func Upload(groupname, host string, port int, user, pass, keyname, passphrase st
 		return nil, err
 	}
 
-	session, err = sftp.NewClient(c)
+	session, err = sftp.NewClient(c, sftp.MaxPacket(maxPacketSize))
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +64,7 @@ func Upload(groupname, host string, port int, user, pass, keyname, passphrase st
 	}
 }
 
-func Download(groupname, host string, port int, user, pass, keyname, passphrase string, ciphers []string, srcFilePath, desDirPath string) ([]string, error) {
+func Download(groupname, host string, port int, user, pass, keyname, passphrase string, ciphers []string, maxPacketSize int, srcFilePath, desDirPath string) ([]string, error) {
 	var (
 		session *sftp.Client
 		err     error
@@ -75,7 +75,7 @@ func Download(groupname, host string, port int, user, pass, keyname, passphrase 
 		return nil, err
 	}
 
-	session, err = sftp.NewClient(c)
+	session, err = sftp.NewClient(c, sftp.MaxPacket(maxPacketSize))
 	if err != nil {
 		return nil, err
 	}

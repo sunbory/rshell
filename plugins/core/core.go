@@ -78,16 +78,16 @@ func GetPlainPassword(c types.Cfg, au types.Auth) (nau types.Auth, err error) {
 	return au,nil
 }
 
-func RunSshCommands(timeout, concurrency int, actionname, actiontype string, au types.Auth, hg types.Hostgroup, cmds []string) {
-	rlog.Info.Printf("concurrency: %d, actionname: %s, actiontype: %s, au: %+v, hg: %+v, cmds: %#v", concurrency, actionname, actiontype, au, hg, cmds)
+func RunSshCommands(cfg types.Cfg, actionname, actiontype string, au types.Auth, hg types.Hostgroup, cmds []string) {
+	rlog.Info.Printf("concurrency: %d, actionname: %s, actiontype: %s, au: %+v, hg: %+v, cmds: %#v", cfg.Concurrency, actionname, actiontype, au, hg, cmds)
 
-	limit := make(chan bool, concurrency)
+	limit := make(chan bool, cfg.Concurrency)
 	defer close(limit)
 
 	taskchs := make(chan types.Hostresult, len(hg.Ips))
 	defer close(taskchs)
 
-	ctx, _ := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+	ctx, _ := context.WithTimeout(context.Background(), time.Duration(cfg.Tasktimeout)*time.Second)
 
 	for _, ip := range hg.Ips {
 		limit <- true
@@ -120,26 +120,26 @@ func RunSshCommands(timeout, concurrency int, actionname, actiontype string, au 
 				taskchs <- result
 				<-limit
 			}
-		}(ctx, actionname, actiontype, hg.Groupname, ip, hg.Sshport, au.Username, au.Password, au.Privatekey, au.Passphrase, au.Sudotype, au.Sudopass, []string{}, cmds)
+		}(ctx, actionname, actiontype, hg.Groupname, ip, hg.Sshport, au.Username, au.Password, au.Privatekey, au.Passphrase, au.Sudotype, au.Sudopass, cfg.Sshciphers, cmds)
 	}
 
 	outputs.Output(actionname, actiontype, taskchs, hg)
 }
 
-func RunSftpCommands(timeout, concurrency int, actionname, actiontype string, au types.Auth, hg types.Hostgroup, srcFilePath, desDirPath string) {
-	rlog.Info.Printf("concurrency: %d, actionname: %s, actiontype: %s, au: %+v, hg: %+v, srcFilePath: %s, desDirPath: %s", concurrency, actionname, actiontype, au, hg, srcFilePath, desDirPath)
+func RunSftpCommands(cfg types.Cfg, actionname, actiontype string, au types.Auth, hg types.Hostgroup, srcFilePath, desDirPath string) {
+	rlog.Info.Printf("concurrency: %d, actionname: %s, actiontype: %s, au: %+v, hg: %+v, srcFilePath: %s, desDirPath: %s", cfg.Concurrency, actionname, actiontype, au, hg, srcFilePath, desDirPath)
 
-	limit := make(chan bool, concurrency)
+	limit := make(chan bool, cfg.Concurrency)
 	defer close(limit)
 
 	taskchs := make(chan types.Hostresult, len(hg.Ips))
 	defer close(taskchs)
 
-	ctx, _ := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+	ctx, _ := context.WithTimeout(context.Background(), time.Duration(cfg.Tasktimeout)*time.Second)
 
 	for _, ip := range hg.Ips {
 		limit <- true
-		go func(ctx context.Context, actionname, actiontype, groupname, host string, port int, user, pass, keyname, passphrase string, ciphers []string, srcFilePath, desDirPath string) {
+		go func(ctx context.Context, actionname, actiontype, groupname, host string, port int, user, pass, keyname, passphrase string, ciphers []string, maxPacketSize int, srcFilePath, desDirPath string) {
 			if !strings.HasSuffix(desDirPath, "/") {
 				desDirPath = desDirPath + "/"
 			}
@@ -147,9 +147,9 @@ func RunSftpCommands(timeout, concurrency int, actionname, actiontype string, au
 			var err error
 			switch actiontype {
 			case "download":
-				sfs, err = sftp.Download(groupname, host, port, user, pass, keyname, passphrase, ciphers, srcFilePath, desDirPath)
+				sfs, err = sftp.Download(groupname, host, port, user, pass, keyname, passphrase, ciphers, maxPacketSize, srcFilePath, desDirPath)
 			case "upload":
-				sfs, err = sftp.Upload(groupname, host, port, user, pass, keyname, passphrase, ciphers, srcFilePath, desDirPath)
+				sfs, err = sftp.Upload(groupname, host, port, user, pass, keyname, passphrase, ciphers, maxPacketSize, srcFilePath, desDirPath)
 			default:
 				err = fmt.Errorf("action not supported")
 			}
@@ -171,7 +171,7 @@ func RunSftpCommands(timeout, concurrency int, actionname, actiontype string, au
 				taskchs <- result
 				<-limit
 			}
-		}(ctx, actionname, actiontype, hg.Groupname, ip, hg.Sshport, au.Username, au.Password, au.Privatekey, au.Passphrase, []string{}, srcFilePath, desDirPath)
+		}(ctx, actionname, actiontype, hg.Groupname, ip, hg.Sshport, au.Username, au.Password, au.Privatekey, au.Passphrase, cfg.Sshciphers, cfg.Sftppacketsize, srcFilePath, desDirPath)
 	}
 
 	outputs.Output(actionname, actiontype, taskchs, hg)

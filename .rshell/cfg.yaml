@@ -1,6 +1,7 @@
 concurrency: 10                                         #The num of concurrency goroutine for hosts, Default: 10
 tasktimeout: 300                                        #The total timeout [second] of everyone goroutine, Default: 300
 connecttimeout: 3600                                    #The total timeout [second] of everyone ssh connection, Default: 3600
+sftppacketsize: 32768                                   #The sftp packet size [bytes], Default: 32768, If you get the error "failed to send packet header: EOF" when copying a large file, try lowering this number.
 cmdseparator: ";"                                       #The command separator, Default: ";"
 promptstring: "rshell: "                                #The system prompt string, Default: "rshell: "
 hostgroupsize: 200                                      #The max number of ip in hostgroup, Default: 200
@@ -16,3 +17,14 @@ mostusedcmds:                                           #The most used commands
 - whoami
 updateserver:                                           #The auto update server address
 - https://github.com/luckywinds/rshell/raw/master/releases
+sshciphers:                                             #The ssh connect ciphers, Default: aes128-ctr, aes192-ctr, aes256-ctr, aes128-gcm@openssh.com, arcfour256, arcfour128, aes128-cbc, 3des-cbc, aes192-cbc, aes256-cbc
+- aes128-ctr
+- aes192-ctr
+- aes256-ctr
+- aes128-gcm@openssh.com
+- arcfour256
+- arcfour128
+- aes128-cbc
+- 3des-cbc
+- aes192-cbc
+- aes256-cbc
