@@ -11,6 +11,7 @@ type Cfg struct {
 	Concurrency   int        `yaml:"concurrency,omitempty"`
 	Tasktimeout   int        `yaml:"tasktimeout,omitempty"`
 	Connecttimeout int       `yaml:"connecttimeout,omitempty"`
+	Sftppacketsize int       `yaml:"sftppacketsize,omitempty"`
 	CmdSeparator  string     `yaml:"cmdseparator,omitempty"`
 	BlackCmdList  []BlackCmd `yaml:"blackcmdlist,omitempty"`
 	PromptString  string     `yaml:"promptstring,omitempty"`
@@ -19,8 +20,9 @@ type Cfg struct {
 	Passcryptkey  string     `yaml:"passcryptkey,omitempty"`
 	HistoryFile   string     `yaml:"historyfile,omitempty"`
 	Mostusedcmds  []string   `yaml:"mostusedcmds,omitempty"`
-	Updateserver  []string     `yaml:"updateserver,omitempty"`
-	Outputtype    string      `yaml:"outputtype,omitempty"`
+	Updateserver  []string   `yaml:"updateserver,omitempty"`
+	Outputtype    string     `yaml:"outputtype,omitempty"`
+	Sshciphers    []string   `yaml:"sshciphers,omitempty"`
 }
 
 //Hosts config

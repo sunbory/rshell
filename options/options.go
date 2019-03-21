@@ -144,6 +144,11 @@ func GetCfg() Cfg {
 	} else if cfg.Connecttimeout < 0 || cfg.Connecttimeout > 86400 {
 		log.Fatalf("Config Connecttimeout illegal [%d] not in (0, 86400].", cfg.Connecttimeout)
 	}
+	if cfg.Sftppacketsize == 0 {
+		cfg.Sftppacketsize = 32768
+	} else if cfg.Sftppacketsize < 1 || cfg.Sftppacketsize > 32768 {
+		log.Fatalf("Config Sftppacketsize illegal [%d] not in (0, 32768].", cfg.Sftppacketsize)
+	}
 	if cfg.CmdSeparator == "" {
 		cfg.CmdSeparator = ";"
 	} else if len(cfg.CmdSeparator) != 1 {
@@ -179,6 +184,18 @@ func GetCfg() Cfg {
 
 	cfg.Updateserver = append(cfg.Updateserver, "ftp://siag9x002128631")
 
+	if len(cfg.Sshciphers) == 0 {
+		cfg.Sshciphers = append(cfg.Sshciphers, "aes128-ctr")
+		cfg.Sshciphers = append(cfg.Sshciphers, "aes192-ctr")
+		cfg.Sshciphers = append(cfg.Sshciphers, "aes256-ctr")
+		cfg.Sshciphers = append(cfg.Sshciphers, "aes128-gcm@openssh.com")
+		cfg.Sshciphers = append(cfg.Sshciphers, "arcfour256")
+		cfg.Sshciphers = append(cfg.Sshciphers, "arcfour128")
+		cfg.Sshciphers = append(cfg.Sshciphers, "aes128-cbc")
+		cfg.Sshciphers = append(cfg.Sshciphers, "3des-cbc")
+		cfg.Sshciphers = append(cfg.Sshciphers, "aes192-cbc")
+		cfg.Sshciphers = append(cfg.Sshciphers, "aes256-cbc")
+	}
 	return cfg
 }
 

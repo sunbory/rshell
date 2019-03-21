@@ -42,9 +42,6 @@ func New(groupname, host string, port int, user, pass, keyname, passphrase strin
 	if pass == "" && keyname == "" {
 		return nil, fmt.Errorf("pass and keyname can not be empty")
 	}
-	if len(ciphers) == 0 {
-		ciphers = []string{"aes128-ctr", "aes192-ctr", "aes256-ctr", "aes128-gcm@openssh.com", "arcfour256", "arcfour128", "aes128-cbc", "3des-cbc", "aes192-cbc", "aes256-cbc"}
-	}
 
 	cachekey := user + "+" + keyname + "@" + groupname + "/" + host + ":" + fmt.Sprintf("%d", port)
 	if v, ok := dialcache.Get(cachekey); ok {

@@ -55,9 +55,9 @@ func fromHttp(outpath string, file string, url string) error {
 
 func fromFtp(outpath string, file string, url string) error {
 	config := goftp.Config{
-		User:               "rshell",
-		Password:           "",
-		Timeout:            10 * time.Second,
+		User:     "rshell",
+		Password: "",
+		Timeout:  10 * time.Second,
 	}
 	client, err := goftp.DialConfig(config, strings.TrimLeft(url, "ftp://"))
 	if err != nil {
@@ -82,13 +82,13 @@ func fromFtp(outpath string, file string, url string) error {
 func downloadFile(outpath string, file string, url string) error {
 	if strings.HasPrefix(url, "http") {
 		if err := fromHttp(outpath, file, url); err != nil {
-			rlog.Error.Printf("from http error : %v", err)
+			rlog.Warn.Printf("from http error : %v", err)
 			return err
 		}
 	}
 	if strings.HasPrefix(url, "ftp") {
 		if err := fromFtp(outpath, file, url); err != nil {
-			rlog.Error.Printf("from ftp error : %v", err)
+			rlog.Warn.Printf("from ftp error : %v", err)
 			return err
 		}
 	}
