@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-func GetArgFields(line, keyword, sep string) ([]string) {
+func GetArgFields(line, keyword, sep string) []string {
 	as := strings.Fields(strings.TrimLeft(line, keyword))
 	if sep == " " {
 		return as
@@ -75,7 +75,7 @@ func GetPlainPassword(c types.Cfg, au types.Auth) (nau types.Auth, err error) {
 			return au, fmt.Errorf("decrypt password error [%v] crypt type is [%s]", err, c.Passcrypttype)
 		}
 	}
-	return au,nil
+	return au, nil
 }
 
 func RunSshCommands(cfg types.Cfg, actionname, actiontype string, au types.Auth, hg types.Hostgroup, cmds []string) {
@@ -99,6 +99,7 @@ func RunSshCommands(cfg types.Cfg, actionname, actiontype string, au types.Auth,
 				stdout, stderr, err = ssh.DO(groupname, host, port, user, pass, keyname, passphrase, "", "", ciphers, cmds)
 			case "sudo":
 				stdout, stderr, err = ssh.SUDO(groupname, host, port, user, pass, keyname, passphrase, sudotype, sudopass, ciphers, cmds)
+				stderr = strings.Replace(stderr, sudopass, "******", -1)
 			default:
 				err = fmt.Errorf("action not supported")
 			}
