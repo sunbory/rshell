@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"time"
 )
 
@@ -23,7 +24,11 @@ var (
 func init() {
 	rotate()
 
-	logfile := logfileprefix + fmt.Sprintf("%v-%d-%v_%v-%v-%v", time.Now().Year(), time.Now().Month(), time.Now().Day(), time.Now().Hour(), time.Now().Minute(), time.Now().Second()) + logfilesuffix
+	now := fmt.Sprintf("%s", time.Now().UTC())
+	now = strings.Replace(now, " ", "_", -1)
+	now = strings.Replace(now, ":", "-", -1)
+
+	logfile := logfileprefix + now + logfilesuffix
 	lf, err := os.OpenFile(logfile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("open the log file [%s] error: %v\n", logfile, err)
@@ -44,7 +49,7 @@ func rotate() {
 
 	lfs, err := filepath.Glob(logfileprefix + "*")
 	if err != nil {
-		log.Fatalf("glog the log file [%s] error: %v\n", logfileprefix, err)
+		log.Fatalf("glob the log file [%s] error: %v\n", logfileprefix, err)
 	}
 	if len(lfs) > 10 {
 		sort.Sort(sort.Reverse(sort.StringSlice(lfs)))
