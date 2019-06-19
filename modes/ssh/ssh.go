@@ -41,7 +41,7 @@ func DO(groupname, host string, port int, user, pass, keyname, passphrase, sudot
 	}
 
 	if sudotype != "" {
-		fmt.Fprintf(stdin, "%s\n", sudotype)
+		fmt.Fprintf(stdin, "%s || exit 1\n", sudotype)
 		time.Sleep(time.Millisecond * 100)
 		fmt.Fprintf(stdin, "%s\n", sudopass)
 		time.Sleep(time.Millisecond * 100)
@@ -50,11 +50,12 @@ func DO(groupname, host string, port int, user, pass, keyname, passphrase, sudot
 		fmt.Fprintf(stdin, "%s\n", "echo > .rshell.sh")
 		for _, cmd := range cmds {
 			if cmd != "" {
-				fmt.Fprintf(stdin, "%s\n", "echo '" + cmd + "' >> .rshell.sh")
+				fmt.Fprintf(stdin, "%s\n", "echo '"+cmd+"' >> .rshell.sh")
 				fmt.Fprintf(stdin, "%s\n", "echo 'rrretcode=$?;[ $rrretcode -eq 0 ] || exit $rrretcode' >> .rshell.sh")
 			}
 		}
 		fmt.Fprintf(stdin, "%s\n", "sh .rshell.sh")
+		fmt.Fprintf(stdin, "%s\n", "rm -f .rshell.sh")
 
 		fmt.Fprintf(stdin, "%s\n", "exit")
 		fmt.Fprintf(stdin, "%s\n", "exit")

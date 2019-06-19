@@ -55,7 +55,8 @@ func setup() {
 	client.SetupDialCache(opts.Cfg.Connecttimeout)
 }
 
-var version = "9.0"
+var version = "9.1"
+
 func showIntro() {
 	fmt.Println(`
  ______     ______     __  __     ______     __         __
@@ -63,7 +64,7 @@ func showIntro() {
 \ \  __<   \ \___  \  \ \  __ \  \ \  __\   \ \ \____  \ \ \____
  \ \_\ \_\  \/\_____\  \ \_\ \_\  \ \_____\  \ \_____\  \ \_____\
   \/_/ /_/   \/_____/   \/_/\/_/   \/_____/   \/_____/   \/_____/
------- Rshell @`+version+` Type "?" or "help" for more information. -----
+------ Rshell @` + version + ` Type "?" or "help" for more information. -----
 {The Correct Step: 1.help -> 2.load -> 3.*/sudo/download/upload}`)
 }
 
