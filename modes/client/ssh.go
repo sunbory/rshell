@@ -52,6 +52,19 @@ func New(groupname, host string, port int, user, pass, keyname, passphrase strin
 	auth := make([]ssh.AuthMethod, 0)
 	if pass != "" {
 		auth = append(auth, ssh.Password(pass))
+
+		keyboardInteractiveChallenge := func(
+			user,
+			instruction string,
+			questions []string,
+			echos []bool,
+		) (answers []string, err error) {
+			if len(questions) == 0 {
+				return []string{}, nil
+			}
+			return []string{pass}, nil
+		}
+		auth = append(auth, ssh.KeyboardInteractive(keyboardInteractiveChallenge))
 	}
 	if keyname != "" {
 		var (
