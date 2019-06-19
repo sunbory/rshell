@@ -53,6 +53,7 @@ go build rshell.go
   - [脚本任务编排模式](#脚本任务编排模式)
   - [普通命令行模式](#普通命令行模式)
   - [输出格式自定义](#输出格式自定义)
+- [FAQ](#faq)
 
 ## 配置说明
 
@@ -714,3 +715,11 @@ ttt
     ttt
 
 ```
+
+## FAQ
+
+- 执行sudo相关命令时，STDERR报sudo: no tty present and no askpass program specified
+
+可能原因：自动切换用户时默认需要经过tty获取密码
+
+建议措施：增加-S选项，sudotype: "sudo -S su -"
