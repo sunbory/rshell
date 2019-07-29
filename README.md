@@ -1,5 +1,8 @@
 # rshell
 
+- [GitHub](https://github.com/luckywinds/rshell)
+- [码云](https://gitee.com/luckywinds/rshell)
+
 ## 功能说明
 
 多Linux主机远程批量执行Shell命令和上传下载文件（跨平台，无依赖，免安装）
