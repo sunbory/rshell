@@ -5,16 +5,24 @@ set -eu
 GITCOMMIT=$(git rev-parse HEAD)
 BUILDTIME=$(date -u +%Y/%m/%d-%H:%M:%S)
 
+GCFLAGS=""
 LDFLAGS="-X main.VERSION=$VERSION -X main.BUILDTIME=$BUILDTIME -X main.GITCOMMIT=$GITCOMMIT"
 if [[ -n "${EX_LDFLAGS:-""}" ]]
 then
 	LDFLAGS="$LDFLAGS $EX_LDFLAGS"
 fi
 
+if [ "${DEBUG}" == "True" ];
+then
+	LDFLAGS="-s $LDFLAGS"
+	GCFLAGS="-N -l"
+fi
+
 build() {
 	echo "build ${RELEASE}-${3:-""} for $1 $2 ..."
 	GOOS=$1 GOARCH=$2 go build \
 		-ldflags "$LDFLAGS" \
+		-gcflags "$GCFLAGS" \
 		-o dist/${RELEASE}-${3:-""}
 }
 
