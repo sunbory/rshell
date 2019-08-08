@@ -24,9 +24,9 @@ func IsIpv4(s string) bool {
 	if temp == nil {
 		return false
 	}
-	if temp.To4() == nil {
-		return false
-	}
+// 	if temp.To4() == nil {
+// 		return false
+// 	}
 	return true
 }
 
