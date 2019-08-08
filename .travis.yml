@@ -8,6 +8,7 @@ env:
   CGO_ENABLED=0
   VERSION=v9.2
   RELEASE=rshell
+  DEBUG=True
 
 cache:
   directories:
