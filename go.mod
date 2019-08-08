@@ -1,5 +1,5 @@
 module sunbory/rshell
 
 replace (
-    github.com/luckywinds/rshell/pkg/checkers => github.com/sunbory/rshell/pkg/checkers latest
+    github.com/luckywinds/rshell/pkg/checkers => github.com/sunbory/rshell/pkg/checkers 13969440205
 )
