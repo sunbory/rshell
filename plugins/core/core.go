@@ -29,7 +29,7 @@ func GetAuthHostgroup(o options.Options) (types.Auth, types.Hostgroup) {
 	var hg types.Hostgroup
 
 	au = o.Authsm[o.CurrentEnv.Authname]
-	if checkers.IsIpv4(o.CurrentEnv.Hostgroupname) {
+	if checkers.ValidIP(o.CurrentEnv.Hostgroupname) {
 		hg = types.Hostgroup{
 			Groupname:  "TEMPHOST",
 			Authmethod: o.CurrentEnv.Authname,
