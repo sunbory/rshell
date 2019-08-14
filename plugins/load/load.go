@@ -51,7 +51,7 @@ func Command(o options.Options, line string) (string, string, int, error) {
 	if hname == "" {
 		return aname, hname, port, fmt.Errorf("load arguments illegal, %s", "host empty")
 	}
-	if checkers.IsIpv4(hname) {
+	if checkers.ValidIP(hname) {
 		if aname == "" {
 			return aname, hname, port, fmt.Errorf("load arguments illegal, %s", "auth empty")
 		}
@@ -74,7 +74,7 @@ func args(o options.Options, a string) (err error){
 	case strings.HasPrefix(a, "-H"):
 		hname = strings.TrimLeft(a, "-H")
 		if _, ok := o.Hostgroupsm[hname]; !ok {
-			if !checkers.IsIpv4(hname) {
+			if !checkers.ValidIP(hname) {
 				return fmt.Errorf("host name [%s] illegal", a)
 			}
 		}
