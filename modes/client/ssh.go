@@ -36,7 +36,7 @@ func New(groupname, host string, port int, user, pass, keyname, passphrase strin
 	if groupname == "" {
 		groupname = "DEFAULT"
 	}
-	if !checkers.IsIpv4(host) || port <= 0 || port > 65535 || user == "" {
+	if !checkers.ValidIP(host) || port <= 0 || port > 65535 || user == "" {
 		return nil, fmt.Errorf("host[%s] or port[%d] or user[%s] illegal", host, port, user)
 	}
 	if pass == "" && keyname == "" {
