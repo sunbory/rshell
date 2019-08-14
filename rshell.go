@@ -74,7 +74,7 @@ func commandRun() {
 	if strings.HasPrefix(opts.Line, "encrypt ") || strings.HasPrefix(opts.Line, "decrypt ") {
 		runCommand(opts.Line)
 	} else {
-		if checkers.IsIpv4(opts.CurrentEnv.Hostgroupname) {
+		if checkers.ValidIP(opts.CurrentEnv.Hostgroupname) {
 			if _, ok := opts.Authsm[opts.CurrentEnv.Authname]; !ok {
 				rlog.Error.Fatalf("auth name [%s] not found", opts.CurrentEnv.Authname)
 			}
@@ -96,7 +96,7 @@ func commandRun() {
 func interactiveRun() {
 	showIntro()
 	opts.CurrentEnv = options.LoadEnv()
-	if _, ok := opts.Hostgroupsm[opts.CurrentEnv.Hostgroupname]; ok || checkers.IsIpv4(opts.CurrentEnv.Hostgroupname) {
+	if _, ok := opts.Hostgroupsm[opts.CurrentEnv.Hostgroupname]; ok || checkers.ValidIP(opts.CurrentEnv.Hostgroupname) {
 		if _, ok := opts.Authsm[opts.CurrentEnv.Authname]; ok && opts.CurrentEnv.Port > 0 && opts.CurrentEnv.Port < 65535 {
 			opts.Cfg.PromptString = "[" + opts.CurrentEnv.Authname + "@" + opts.CurrentEnv.Hostgroupname + ":" + strconv.Itoa(opts.CurrentEnv.Port) + "]# "
 			prompt.AddHostgroup("-H" + opts.CurrentEnv.Hostgroupname)
@@ -145,7 +145,7 @@ func runCommand(line string) bool {
 			rlog.Error.Printf("load: %v", err)
 			load.Help()
 		} else {
-			if !checkers.IsIpv4(h) {
+			if !checkers.ValidIP(h) {
 				a = opts.Hostgroupsm[h].Authmethod
 				p = opts.Hostgroupsm[h].Sshport
 			}
