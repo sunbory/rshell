@@ -19,7 +19,7 @@ func IsDuplicate(ss []string) bool {
 	return false
 }
 
-func IsIpv4(s string) bool {
+func ValidIP(s string) bool {
 	temp := net.ParseIP(s)
 	if temp == nil {
 		return false
