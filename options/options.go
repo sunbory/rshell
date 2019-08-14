@@ -226,7 +226,7 @@ func incIp(s string) string {
 
 func parseHosts(hg Hostgroup) Hostgroup {
 	for _, h := range hg.Hosts {
-		if !checkers.IsIpv4(h) {
+		if !checkers.ValidIP(h) {
 			log.Fatalf("IP illegal [%s/%s].", hg.Groupname, h)
 		}
 	}
@@ -236,7 +236,7 @@ func parseHosts(hg Hostgroup) Hostgroup {
 
 func parseHostrange(hg Hostgroup) Hostgroup {
 	for _, hr := range hg.Hostranges {
-		if !checkers.IsIpv4(hr.From) || !checkers.IsIpv4(hr.To) || hr.From == hr.To {
+		if !checkers.ValidIP(hr.From) || !checkers.ValidIP(hr.To) || hr.From == hr.To {
 			log.Fatalf("IP Range illegal [%s/%s-%s].", hg.Groupname, hr.From, hr.To)
 		}
 		temp := []string{hr.From}
