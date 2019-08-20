@@ -28,7 +28,8 @@ build() {
 
 # go-bindata-assetfs -tags bindata res/...
 
-build linux arm linux-arm
+# build linux arm linux-arm
+build linux arm64 linux-arm64
 # build darwin amd64 mac-amd64
 build linux amd64 linux-amd64
 # build linux 386 linux-386
