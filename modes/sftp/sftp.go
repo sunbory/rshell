@@ -81,17 +81,17 @@ func Download(groupname, host string, port int, user, pass, keyname, passphrase 
 	}
 	defer session.Close()
 
-	if err = os.Mkdir(desDirPath, os.ModeDir); err != nil {
+	if err = os.Mkdir(desDirPath, os.ModeDir|0777); err != nil {
 		if os.IsNotExist(err) {
 			return nil, err
 		}
 	}
-	if err = os.Mkdir(path.Join(desDirPath, groupname), os.ModeDir); err != nil {
+	if err = os.Mkdir(path.Join(desDirPath, groupname), os.ModeDir|0777); err != nil {
 		if os.IsNotExist(err) {
 			return nil, err
 		}
 	}
-	if err = os.Mkdir(path.Join(path.Join(desDirPath, groupname), host), os.ModeDir); err != nil {
+	if err = os.Mkdir(path.Join(path.Join(desDirPath, groupname), host), os.ModeDir|0777); err != nil {
 		if os.IsNotExist(err) {
 			return nil, err
 		}
