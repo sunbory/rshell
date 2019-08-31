@@ -141,9 +141,9 @@ func RunSftpCommands(cfg types.Cfg, actionname, actiontype string, au types.Auth
 	for _, ip := range hg.Ips {
 		limit <- true
 		go func(ctx context.Context, actionname, actiontype, groupname, host string, port int, user, pass, keyname, passphrase string, ciphers []string, maxPacketSize int, srcFilePath, desDirPath string) {
-			if !strings.HasSuffix(desDirPath, "/") {
-				desDirPath = desDirPath + "/"
-			}
+// 			if !strings.HasSuffix(desDirPath, "/") {
+// 				desDirPath = desDirPath + "/"
+// 			}
 			var sfs []string
 			var err error
 			switch actiontype {
