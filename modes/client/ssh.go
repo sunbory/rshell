@@ -98,7 +98,7 @@ func New(groupname, host string, port int, user, pass, keyname, passphrase strin
 		},
 	}
 
-	client, err := ssh.Dial("tcp", net.JoinHostPort(host, port), clientConfig)
+	client, err := ssh.Dial("tcp", net.JoinHostPort(host, strconv.Itoa(port)), clientConfig)
 	if err != nil {
 		return nil, err
 	}
