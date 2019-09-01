@@ -3,6 +3,9 @@ package core
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/luckywinds/rshell/modes/sftp"
 	"github.com/luckywinds/rshell/modes/ssh"
 	"github.com/luckywinds/rshell/options"
@@ -10,9 +13,7 @@ import (
 	"github.com/luckywinds/rshell/pkg/checkers"
 	"github.com/luckywinds/rshell/pkg/crypt"
 	"github.com/luckywinds/rshell/pkg/rlog"
-	"github.com/luckywinds/rshell/types"
-	"strings"
-	"time"
+	"github.com/sunbory/rshell/rclient"
 )
 
 func GetArgFields(line, keyword, sep string) []string {
@@ -78,6 +79,40 @@ func GetPlainPassword(c types.Cfg, au types.Auth) (nau types.Auth, err error) {
 	return au, nil
 }
 
+func GetProxyConfig (hostname string) (rclient.RConfig, error) {
+
+	o := options.New()
+	
+	hg, err := options.GetHostgroupByname(hostname)
+	if err != nil {
+		return nil, err
+	}
+
+	au, err := options.GetAuthByname(hg.Authmethod)
+	if err != nil {
+		return nil, err
+	}
+
+	au, err := GetPlainPassword(options.GetCfg(), au)
+	if err != nil {
+		return nil, err
+	}
+
+	return &rclient.RConfig {
+		Groupname  = hostname,
+		Host       = hg.Ips[0]
+		Port       = o.CurrentEnv.Port   
+		User       = au.Username
+		Key        = au.Privatekey
+		Password   = au.Password
+		Passphrase = au.Passphrase
+		Ciphers    = cfg.Sshciphers
+		Sudotype   = au.Sudotype
+		Sudopass   = au.Sudopass
+	}, nil
+
+}
+
 func RunSshCommands(cfg types.Cfg, actionname, actiontype string, au types.Auth, hg types.Hostgroup, cmds []string) {
 	rlog.Info.Printf("concurrency: %d, actionname: %s, actiontype: %s, au: %+v, hg: %+v, cmds: %#v", cfg.Concurrency, actionname, actiontype, au, hg, cmds)
 
@@ -91,22 +126,49 @@ func RunSshCommands(cfg types.Cfg, actionname, actiontype string, au types.Auth,
 
 	for _, ip := range hg.Ips {
 		limit <- true
-		go func(ctx context.Context, actionname, actiontype, groupname, host string, port int, user, pass, keyname, passphrase, sudotype, sudopass string, ciphers, cmds []string) {
+		
+		rConfig := &client.RConfig {
+			Groupname  = hg.Groupname,
+			Host       = ip
+			Port       = hg.Sshport   
+			User       = au.Username
+			Key        = au.Privatekey
+			Password   = au.Password
+			Passphrase = au.Passphrase
+			Ciphers    = cfg.Sshciphers
+			Sudotype   = au.Sudotype
+			Sudopass   = au.Sudopass
+		} 
+
+		if hg.Proxy != nil {
+			rConfig.Proxy, _ := GetProxyConfig(hg.Proxy)
+		}
+
+		go func(ctx context.Context, actionname, actiontype, rconfig *client.RConfig, cmds []string) {
 			var stdout, stderr string
-			var err error
+
+			var result = types.Hostresult {
+				Actiontype = actiontype,
+				Groupname  = groupname,
+				Hostaddr   = rconfig.Host,
+			}
+			
+			ssh, err := client.New(rconfig)
+			if err != nil {
+				result.Error = err.Error()
+				taskchs <- result
+				return 
+			}
+
 			switch actiontype {
 			case "do":
-				stdout, stderr, err = ssh.DO(groupname, host, port, user, pass, keyname, passphrase, "", "", ciphers, cmds)
+				stdout, stderr, err = ssh.DO(cmds)
 			case "sudo":
-				stdout, stderr, err = ssh.SUDO(groupname, host, port, user, pass, keyname, passphrase, sudotype, sudopass, ciphers, cmds)
+				stdout, stderr, err = ssh.SUDO(cmds)
 				stderr = strings.Replace(stderr, sudopass, "******", -1)
 			default:
 				err = fmt.Errorf("action not supported")
 			}
-			var result types.Hostresult
-			result.Actiontype = actiontype
-			result.Groupname = groupname
-			result.Hostaddr = host
 			result.Stdout = stdout
 			result.Stderr = stderr
 			if err != nil {
@@ -121,7 +183,7 @@ func RunSshCommands(cfg types.Cfg, actionname, actiontype string, au types.Auth,
 				taskchs <- result
 				<-limit
 			}
-		}(ctx, actionname, actiontype, hg.Groupname, ip, hg.Sshport, au.Username, au.Password, au.Privatekey, au.Passphrase, au.Sudotype, au.Sudopass, cfg.Sshciphers, cmds)
+		}(ctx, actionname, actiontype, rConfig, cmds)
 	}
 
 	outputs.Output(actionname, actiontype, taskchs, hg)
@@ -140,24 +202,51 @@ func RunSftpCommands(cfg types.Cfg, actionname, actiontype string, au types.Auth
 
 	for _, ip := range hg.Ips {
 		limit <- true
-		go func(ctx context.Context, actionname, actiontype, groupname, host string, port int, user, pass, keyname, passphrase string, ciphers []string, maxPacketSize int, srcFilePath, desDirPath string) {
-// 			if !strings.HasSuffix(desDirPath, "/") {
-// 				desDirPath = desDirPath + "/"
-// 			}
+
+		rConfig := &rclient.RConfig {
+			Groupname  = hg.Groupname,
+			Host       = ip
+			Port       = hg.Sshport   
+			User       = au.Username
+			Key        = u.Privatekey
+			Password   = au.Password
+			Passphrase = au.Passphrase
+			Ciphers    = cfg.Sshciphers
+			Sudotype   = au.Sudotype
+			Sudopass   = au.Sudopass
+		} 
+
+		if hg.Proxy != nil {
+			rConfig.Proxy, _ := GetProxyConfig(hg.Proxy)
+		}
+		
+		go func(ctx context.Context, actionname, actiontype, rconfig *client.RConfig, maxPacketSize int, srcFilePath, desDirPath string) {
+			// 			if !strings.HasSuffix(desDirPath, "/") {
+			// 				desDirPath = desDirPath + "/"
+			// 			}
 			var sfs []string
-			var err error
+
+			var result = types.Hostresult {
+				Actiontype = actiontype,
+				Groupname  = groupname,
+				Hostaddr   = rconfig.Host,
+			}
+			
+			sftp, err := client.New(rconfig)
+			if err != nil {
+				result.Error = err.Error()
+				taskchs <- result
+				return 
+			}
+
 			switch actiontype {
 			case "download":
-				sfs, err = sftp.Download(groupname, host, port, user, pass, keyname, passphrase, ciphers, maxPacketSize, srcFilePath, desDirPath)
+				sfs, err = sftp.Download(srcFilePath, desDirPath, maxPacketSize)
 			case "upload":
-				sfs, err = sftp.Upload(groupname, host, port, user, pass, keyname, passphrase, ciphers, maxPacketSize, srcFilePath, desDirPath)
+				sfs, err = sftp.Upload(srcFilePath, desDirPath, maxPacketSize)
 			default:
 				err = fmt.Errorf("action not supported")
 			}
-			var result types.Hostresult
-			result.Actiontype = actiontype
-			result.Groupname = groupname
-			result.Hostaddr = host
 			if err == nil {
 				result.Stdout = "SUCCESS [" + srcFilePath + " -> " + desDirPath + "] :\n" + strings.Join(sfs, "\n")
 			} else {
@@ -172,7 +261,7 @@ func RunSftpCommands(cfg types.Cfg, actionname, actiontype string, au types.Auth
 				taskchs <- result
 				<-limit
 			}
-		}(ctx, actionname, actiontype, hg.Groupname, ip, hg.Sshport, au.Username, au.Password, au.Privatekey, au.Passphrase, cfg.Sshciphers, cfg.Sftppacketsize, srcFilePath, desDirPath)
+		}(ctx, actionname, actiontype, rConfig, cfg.Sftppacketsize, srcFilePath, desDirPath)
 	}
 
 	outputs.Output(actionname, actiontype, taskchs, hg)
