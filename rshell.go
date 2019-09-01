@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/luckywinds/rshell/modes/client"
+	"log"
+	"strconv"
+	"strings"
+
 	"github.com/luckywinds/rshell/options"
 	"github.com/luckywinds/rshell/outputs"
 	"github.com/luckywinds/rshell/pkg/checkers"
@@ -16,9 +19,7 @@ import (
 	"github.com/luckywinds/rshell/plugins/load"
 	"github.com/luckywinds/rshell/plugins/sudo"
 	"github.com/luckywinds/rshell/plugins/upload"
-	"log"
-	"strconv"
-	"strings"
+	"github.com/sunbory/rshell/rclient"
 )
 
 const (
@@ -52,7 +53,7 @@ func setup() {
 
 	go update.Update(opts.Cfg, version)
 
-	client.SetupDialCache(opts.Cfg.Connecttimeout)
+	rclient.SetupDialCache(opts.Cfg.Connecttimeout)
 }
 
 var version = "9.1"
