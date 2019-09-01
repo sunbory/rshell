@@ -3,31 +3,32 @@ package options
 import (
 	"flag"
 	"fmt"
-	"github.com/luckywinds/rshell/pkg/checkers"
-	"github.com/luckywinds/rshell/pkg/prompt"
-	. "github.com/luckywinds/rshell/types"
-	"gopkg.in/yaml.v2"
 	"html/template"
 	"io/ioutil"
 	"log"
 	"net"
 	"os"
 	"path"
+
+	"github.com/luckywinds/rshell/pkg/checkers"
+	"github.com/luckywinds/rshell/pkg/prompt"
+	. "github.com/luckywinds/rshell/types"
+	"gopkg.in/yaml.v2"
 )
 
 type Options struct {
 	Cfg Cfg
 
-	Hostgroups Hostgroups
+	Hostgroups  Hostgroups
 	Hostgroupsm map[string]Hostgroup
 
-	Auths Auths
+	Auths  Auths
 	Authsm map[string]Auth
 
-	Tasks Tasks
+	Tasks  Tasks
 	Values map[string]interface{}
 
-	IsScriptMode bool
+	IsScriptMode      bool
 	IsCommandlineMode bool
 
 	CurrentEnv CurrentEnv
@@ -37,21 +38,20 @@ type Options struct {
 
 type CurrentEnv struct {
 	Hostgroupname string
-	Authname string
-	Port int
+	Authname      string
+	Port          int
 }
 
-
 var (
-	cfgFile   = path.Join(".rshell", "cfg.yaml")
-	hostsFile = path.Join(".rshell", "hosts.yaml")
-	authFile  = path.Join(".rshell", "auth.yaml")
-	script    = flag.String("f", "", "The script yaml.")
-	scriptValues   = flag.String("v", "", "The script values yaml.")
-	authName  = flag.String("A", "", "The auth method name.")
-	hostName  = flag.String("H", "", "The host name.")
-	sshport   = flag.Int("P", 22, "The ssh port.")
-	cmdline   = flag.String("L", "", "The command line.")
+	cfgFile      = path.Join(".rshell", "cfg.yaml")
+	hostsFile    = path.Join(".rshell", "hosts.yaml")
+	authFile     = path.Join(".rshell", "auth.yaml")
+	script       = flag.String("f", "", "The script yaml.")
+	scriptValues = flag.String("v", "", "The script values yaml.")
+	authName     = flag.String("A", "", "The auth method name.")
+	hostName     = flag.String("H", "", "The host name.")
+	sshport      = flag.Int("P", 22, "The ssh port.")
+	cmdline      = flag.String("L", "", "The command line.")
 )
 
 func init() {
@@ -87,7 +87,14 @@ func initCfg() {
 	}
 }
 
+var option *Options
+
 func New() *Options {
+
+	if option != nil {
+		return option
+	}
+
 	var cfg = GetCfg()
 	var auths, authsm = GetAuths()
 	var hostgroups, hostgroupsm = GetHostgroups()
@@ -101,23 +108,25 @@ func New() *Options {
 		prompt.AddHostgroup("-H" + key)
 	}
 
-	return &Options{
-		Cfg:              cfg,
-		Hostgroups:       hostgroups,
-		Hostgroupsm:      hostgroupsm,
-		Auths:            auths,
-		Authsm:           authsm,
-		Tasks:            tasks,
-		Values:           nil,
-		IsScriptMode:     IsScriptMode(),
+	option := &Options{
+		Cfg:               cfg,
+		Hostgroups:        hostgroups,
+		Hostgroupsm:       hostgroupsm,
+		Auths:             auths,
+		Authsm:            authsm,
+		Tasks:             tasks,
+		Values:            nil,
+		IsScriptMode:      IsScriptMode(),
 		IsCommandlineMode: IsCommandlineMode(),
-		CurrentEnv:       CurrentEnv{
+		CurrentEnv: CurrentEnv{
 			Hostgroupname: *hostName,
 			Authname:      *authName,
 			Port:          *sshport,
 		},
-		Line:              *cmdline,
+		Line: *cmdline,
 	}
+
+	return option
 }
 
 func IsScriptMode() bool {
@@ -215,7 +224,7 @@ func initHostgroups() {
 
 func incIp(s string) string {
 	ip := net.ParseIP(s)
-	for j := len(ip)-1; j>=0; j-- {
+	for j := len(ip) - 1; j >= 0; j-- {
 		ip[j]++
 		if ip[j] > 0 {
 			break
@@ -308,6 +317,12 @@ func parseHostgroups(hgs Hostgroups) Hostgroups {
 			hg.Sshport = 22
 		}
 		rethg.Hgs = append(rethg.Hgs, hg)
+	}
+
+	for _, hg := range rethg.Hgs {
+		if rethg[hg.Proxy].Groupname == "" {
+			log.Fatalf("Proxy Not found. Groups illegal [%s/%s].", hg.Groupname, hg.Proxy)
+		}
 	}
 
 	return rethg
@@ -418,7 +433,7 @@ func templateScript(script string) {
 	}
 }
 
-func GetTasks() (Tasks) {
+func GetTasks() Tasks {
 	if *script != "" {
 		initValues(*scriptValues)
 		if len(values) != 0 {
@@ -437,7 +452,7 @@ func GetTasks() (Tasks) {
 	}
 }
 
-func LoadEnv() (CurrentEnv) {
+func LoadEnv() CurrentEnv {
 	var ce CurrentEnv
 	e, err := ioutil.ReadFile(".rshell/rshell.env")
 	if err != nil {
