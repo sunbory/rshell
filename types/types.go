@@ -8,21 +8,21 @@ type BlackCmd struct {
 }
 
 type Cfg struct {
-	Concurrency   int        `yaml:"concurrency,omitempty"`
-	Tasktimeout   int        `yaml:"tasktimeout,omitempty"`
-	Connecttimeout int       `yaml:"connecttimeout,omitempty"`
-	Sftppacketsize int       `yaml:"sftppacketsize,omitempty"`
-	CmdSeparator  string     `yaml:"cmdseparator,omitempty"`
-	BlackCmdList  []BlackCmd `yaml:"blackcmdlist,omitempty"`
-	PromptString  string     `yaml:"promptstring,omitempty"`
-	Hostgroupsize int        `yaml:"hostgroupsize,omitempty"`
-	Passcrypttype string     `yaml:"passcrypttype,omitempty"`
-	Passcryptkey  string     `yaml:"passcryptkey,omitempty"`
-	HistoryFile   string     `yaml:"historyfile,omitempty"`
-	Mostusedcmds  []string   `yaml:"mostusedcmds,omitempty"`
-	Updateserver  []string   `yaml:"updateserver,omitempty"`
-	Outputtype    string     `yaml:"outputtype,omitempty"`
-	Sshciphers    []string   `yaml:"sshciphers,omitempty"`
+	Concurrency    int        `yaml:"concurrency,omitempty"`
+	Tasktimeout    int        `yaml:"tasktimeout,omitempty"`
+	Connecttimeout int        `yaml:"connecttimeout,omitempty"`
+	Sftppacketsize int        `yaml:"sftppacketsize,omitempty"`
+	CmdSeparator   string     `yaml:"cmdseparator,omitempty"`
+	BlackCmdList   []BlackCmd `yaml:"blackcmdlist,omitempty"`
+	PromptString   string     `yaml:"promptstring,omitempty"`
+	Hostgroupsize  int        `yaml:"hostgroupsize,omitempty"`
+	Passcrypttype  string     `yaml:"passcrypttype,omitempty"`
+	Passcryptkey   string     `yaml:"passcryptkey,omitempty"`
+	HistoryFile    string     `yaml:"historyfile,omitempty"`
+	Mostusedcmds   []string   `yaml:"mostusedcmds,omitempty"`
+	Updateserver   []string   `yaml:"updateserver,omitempty"`
+	Outputtype     string     `yaml:"outputtype,omitempty"`
+	Sshciphers     []string   `yaml:"sshciphers,omitempty"`
 }
 
 //Hosts config
@@ -38,6 +38,7 @@ type Hostgroup struct {
 	Hosts      []string    `yaml:"hosts,omitempty"`
 	Groups     []string    `yaml:"groups,omitempty"`
 	Hostranges []Hostrange `yaml:"hostranges,omitempty"`
+	Proxy      string      `yaml:"proxy,omitempty"`
 	Ips        []string
 }
 type Hostgroups struct {
@@ -77,17 +78,17 @@ type Task struct {
 }
 
 type Tasks struct {
-	Ts  []Task                 `yaml:"tasks,omitempty"`
+	Ts []Task `yaml:"tasks,omitempty"`
 }
 
 //Result
 type Hostresult struct {
 	Actiontype string `yaml:"actiontype,omitempty"`
-	Groupname string `yaml:"groupname,omitempty"`
-	Hostaddr string `yaml:"hostaddr,omitempty"`
-	Error    string `yaml:"error,omitempty"`
-	Stdout   string `yaml:"stdout,omitempty"`
-	Stderr   string `yaml:"stderr,omitempty"`
+	Groupname  string `yaml:"groupname,omitempty"`
+	Hostaddr   string `yaml:"hostaddr,omitempty"`
+	Error      string `yaml:"error,omitempty"`
+	Stdout     string `yaml:"stdout,omitempty"`
+	Stderr     string `yaml:"stderr,omitempty"`
 }
 type Taskresult struct {
 	Name    string       `yaml:"name,omitempty"`
