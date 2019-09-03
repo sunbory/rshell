@@ -6,14 +6,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/luckywinds/rshell/modes/sftp"
-	"github.com/luckywinds/rshell/modes/ssh"
-	"github.com/luckywinds/rshell/options"
+	"github.com/luckywinds/rshell/types"
+    "github.com/luckywinds/rshell/options"
 	"github.com/luckywinds/rshell/outputs"
 	"github.com/luckywinds/rshell/pkg/checkers"
 	"github.com/luckywinds/rshell/pkg/crypt"
 	"github.com/luckywinds/rshell/pkg/rlog"
-	"github.com/sunbory/rshell/rclient"
+	"github.com/luckywinds/rshell/rclient"
 )
 
 func GetArgFields(line, keyword, sep string) []string {
@@ -79,7 +78,7 @@ func GetPlainPassword(c types.Cfg, au types.Auth) (nau types.Auth, err error) {
 	return au, nil
 }
 
-func GetProxyConfig (hostname string) (rclient.RConfig, error) {
+func GetProxyConfig (hostname string) (*rclient.RConfig, error) {
 
 	o := options.New()
 	
@@ -93,22 +92,22 @@ func GetProxyConfig (hostname string) (rclient.RConfig, error) {
 		return nil, err
 	}
 
-	au, err := GetPlainPassword(options.GetCfg(), au)
+	au, err = GetPlainPassword(options.GetCfg(), au)
 	if err != nil {
 		return nil, err
 	}
 
 	return &rclient.RConfig {
-		Groupname  = hostname,
-		Host       = hg.Ips[0]
-		Port       = o.CurrentEnv.Port   
-		User       = au.Username
-		Key        = au.Privatekey
-		Password   = au.Password
-		Passphrase = au.Passphrase
-		Ciphers    = cfg.Sshciphers
-		Sudotype   = au.Sudotype
-		Sudopass   = au.Sudopass
+		Groupname  : hostname,
+		Host       : hg.Ips[0],
+		Port       : o.CurrentEnv.Port ,  
+		User       : au.Username,
+		Key        : au.Privatekey,
+		Password   : au.Password,
+		Passphrase : au.Passphrase,
+		Ciphers    : o.Cfg.Sshciphers,
+		Sudotype   : au.Sudotype,
+		Sudopass   : au.Sudopass,
 	}, nil
 
 }
@@ -127,33 +126,33 @@ func RunSshCommands(cfg types.Cfg, actionname, actiontype string, au types.Auth,
 	for _, ip := range hg.Ips {
 		limit <- true
 		
-		rConfig := &client.RConfig {
-			Groupname  = hg.Groupname,
-			Host       = ip
-			Port       = hg.Sshport   
-			User       = au.Username
-			Key        = au.Privatekey
-			Password   = au.Password
-			Passphrase = au.Passphrase
-			Ciphers    = cfg.Sshciphers
-			Sudotype   = au.Sudotype
-			Sudopass   = au.Sudopass
+		rConfig := &rclient.RConfig {
+			Groupname  : hg.Groupname,
+			Host       : ip,
+			Port       : hg.Sshport ,  
+			User       : au.Username,
+			Key        : au.Privatekey,
+			Password   : au.Password,
+			Passphrase : au.Passphrase,
+			Ciphers    : cfg.Sshciphers,
+			Sudotype   : au.Sudotype,
+			Sudopass   : au.Sudopass,
 		} 
 
-		if hg.Proxy != nil {
-			rConfig.Proxy, _ := GetProxyConfig(hg.Proxy)
+		if hg.Proxy != "" {
+			rConfig.Proxy, _ = GetProxyConfig(hg.Proxy)
 		}
 
-		go func(ctx context.Context, actionname, actiontype, rconfig *client.RConfig, cmds []string) {
+		go func(ctx context.Context, actionname, actiontype string, rconfig *rclient.RConfig, cmds []string) {
 			var stdout, stderr string
 
 			var result = types.Hostresult {
-				Actiontype = actiontype,
-				Groupname  = groupname,
-				Hostaddr   = rconfig.Host,
+				Actiontype : actiontype,
+				Groupname  : rconfig.Groupname,
+				Hostaddr   : rconfig.Host,
 			}
 			
-			ssh, err := client.New(rconfig)
+			ssh, err := rclient.New(rconfig)
 			if err != nil {
 				result.Error = err.Error()
 				taskchs <- result
@@ -165,7 +164,7 @@ func RunSshCommands(cfg types.Cfg, actionname, actiontype string, au types.Auth,
 				stdout, stderr, err = ssh.DO(cmds)
 			case "sudo":
 				stdout, stderr, err = ssh.SUDO(cmds)
-				stderr = strings.Replace(stderr, sudopass, "******", -1)
+				stderr = strings.Replace(stderr, rconfig.Sudopass, "******", -1)
 			default:
 				err = fmt.Errorf("action not supported")
 			}
@@ -177,7 +176,7 @@ func RunSshCommands(cfg types.Cfg, actionname, actiontype string, au types.Auth,
 
 			select {
 			case <-ctx.Done():
-				rlog.Warn.Printf("ACTION TIMEOUT [%v:%v:%v:%v:%v]", actionname, actiontype, groupname, host, port)
+				rlog.Warn.Printf("ACTION TIMEOUT [%v:%v:%v:%v:%v]", actionname, actiontype, rconfig.Groupname, rconfig.Host, rconfig.Port)
 				return
 			default:
 				taskchs <- result
@@ -204,35 +203,35 @@ func RunSftpCommands(cfg types.Cfg, actionname, actiontype string, au types.Auth
 		limit <- true
 
 		rConfig := &rclient.RConfig {
-			Groupname  = hg.Groupname,
-			Host       = ip
-			Port       = hg.Sshport   
-			User       = au.Username
-			Key        = u.Privatekey
-			Password   = au.Password
-			Passphrase = au.Passphrase
-			Ciphers    = cfg.Sshciphers
-			Sudotype   = au.Sudotype
-			Sudopass   = au.Sudopass
+			Groupname  : hg.Groupname,
+			Host       : ip,
+			Port       : hg.Sshport,   
+			User       : au.Username,
+			Key        : au.Privatekey,
+			Password   : au.Password,
+			Passphrase : au.Passphrase,
+			Ciphers    : cfg.Sshciphers,
+			Sudotype   : au.Sudotype,
+			Sudopass   : au.Sudopass,
 		} 
 
-		if hg.Proxy != nil {
-			rConfig.Proxy, _ := GetProxyConfig(hg.Proxy)
+		if hg.Proxy != ""{
+			rConfig.Proxy, _ = GetProxyConfig(hg.Proxy)
 		}
 		
-		go func(ctx context.Context, actionname, actiontype, rconfig *client.RConfig, maxPacketSize int, srcFilePath, desDirPath string) {
+		go func(ctx context.Context, actionname, actiontype string, rconfig *rclient.RConfig, maxPacketSize int, srcFilePath, desDirPath string) {
 			// 			if !strings.HasSuffix(desDirPath, "/") {
 			// 				desDirPath = desDirPath + "/"
 			// 			}
 			var sfs []string
 
 			var result = types.Hostresult {
-				Actiontype = actiontype,
-				Groupname  = groupname,
-				Hostaddr   = rconfig.Host,
+				Actiontype : actiontype,
+				Groupname  : rconfig.Groupname,
+				Hostaddr   : rconfig.Host,
 			}
 			
-			sftp, err := client.New(rconfig)
+			sftp, err := rclient.New(rconfig)
 			if err != nil {
 				result.Error = err.Error()
 				taskchs <- result
@@ -255,7 +254,7 @@ func RunSftpCommands(cfg types.Cfg, actionname, actiontype string, au types.Auth
 
 			select {
 			case <-ctx.Done():
-				rlog.Warn.Printf("ACTION TIMEOUT [%v:%v:%v:%v:%v]", actionname, actiontype, groupname, host, port)
+				rlog.Warn.Printf("ACTION TIMEOUT [%v:%v:%v:%v:%v]", actionname, actiontype, rconfig.Groupname, rconfig.Host, rconfig.Port)
 				return
 			default:
 				taskchs <- result
