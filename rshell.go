@@ -19,7 +19,7 @@ import (
 	"github.com/luckywinds/rshell/plugins/load"
 	"github.com/luckywinds/rshell/plugins/sudo"
 	"github.com/luckywinds/rshell/plugins/upload"
-	"github.com/sunbory/rshell/rclient"
+	"github.com/luckywinds/rshell/rclient"
 )
 
 const (
