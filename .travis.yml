@@ -22,6 +22,10 @@ addons:
 script:
   bash build.sh
 
+branches:
+  only:
+  - v9
+  
 after_success:
 deploy:
   provider: releases
