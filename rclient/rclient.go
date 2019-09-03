@@ -6,6 +6,13 @@ import (
 	"net"
 	"strconv"
 	"time"
+    "path/filepath"
+    "io"
+    "bytes"
+    "os"
+    "runtime"
+    "path"
+    "strings"
 
 	"github.com/luckywinds/rshell/pkg/checkers"
 	"github.com/patrickmn/go-cache"
@@ -22,7 +29,7 @@ type (
 	RConfig struct {
 		Groupname string
 		Host      string
-		Port      string
+		Port      int
 		User      string
 		Key       string
 		Password  string
@@ -31,7 +38,7 @@ type (
 		Sudotype  string
 		Sudopass  string
 		Timeout   time.Duration
-		Proxy     RClient
+		Proxy     *RConfig
 	}
 )
 
@@ -57,7 +64,7 @@ func SetupDialCache(ttl int) {
 	}(dialcache)
 }
 
-func New(config RConfig) (*RClient, error) {
+func New(config *RConfig) (*RClient, error) {
 	
 	err := checkRConfig(config)
 	if err != nil {
@@ -70,19 +77,20 @@ func New(config RConfig) (*RClient, error) {
 	}
 
 	client := &RClient{
-		RConfig: config,
+		RConfig: *config,
 	}
 
-	client.Client, err = client.connect()
+	rst_client, err := client.connect()
 	if err != nil {
 		return nil, err
 	}
+    client.Client = *rst_client
 
 	dialcache.Set(cachekey, client, cache.DefaultExpiration)
 	return client, nil
 }
 
-func checkRConfig (config RConfig) (error) {
+func checkRConfig (config *RConfig) (error) {
 
 	if config.Groupname == "" {
 		config.Groupname = "DEFAULT"
@@ -114,7 +122,7 @@ func (client *RClient) genSSHConfig () (*ssh.ClientConfig, error) {
 			if len(questions) == 0 {
 				return []string{}, nil
 			}
-			return []string{pass}, nil
+			return []string{client.Password}, nil
 		}
 		auth = append(auth, ssh.KeyboardInteractive(keyboardInteractiveChallenge))
 	}
@@ -139,7 +147,7 @@ func (client *RClient) genSSHConfig () (*ssh.ClientConfig, error) {
 	}
 
 	sshConfig := &ssh.ClientConfig{
-		User:    user,
+		User:    client.User,
 		Auth:    auth,
 		Timeout: 60 * time.Second,
 		Config: ssh.Config{
@@ -155,38 +163,40 @@ func (client *RClient) genSSHConfig () (*ssh.ClientConfig, error) {
 
 func (client *RClient) connect() (*ssh.Client, error) {
 	
-	if client.Proxy != nil {
+	var sshClient *ssh.Client
+    
+    if client.Proxy != nil {
 
 		proxyClient, err := New(client.Proxy)
 		if err != nil {
 			return nil, err
 		}
 
-		conn, err := proxyClient.Dial("tcp", net.JoinHostPort(client.Server, client.Port))
+		conn, err := proxyClient.Dial("tcp", net.JoinHostPort(client.Host,strconv.Itoa(client.Port)))
 		if err != nil {
 			return nil, err
 		}
 
-		targetConfig := genSSHConfig()
+		targetConfig, err := client.genSSHConfig()
 		if err != nil {
 			return nil, err
 		}
 
-		ncc, chans, reqs, err := ssh.NewClientConn(conn, net.JoinHostPort(client.Server, client.Port), targetConfig)
+		ncc, chans, reqs, err := ssh.NewClientConn(conn, net.JoinHostPort(client.Host, strconv.Itoa(client.Port)), targetConfig)
 		if err != nil {
 			return nil, err
 		}
 
-		sshClient := ssh.NewClient(ncc, chans, reqs)
+		sshClient = ssh.NewClient(ncc, chans, reqs)
 
 	} else {
 
-		clientConfig := client.genSSHConfig()
+		clientConfig, err := client.genSSHConfig()
 		if err != nil {
 			return nil, err
 		}
 
-		sshClient, err := ssh.Dial("tcp", net.JoinHostPort(ssh_conf.Server, ssh_conf.Port), clientConfig)
+		sshClient, err = ssh.Dial("tcp", net.JoinHostPort(client.Host, strconv.Itoa(client.Port)), clientConfig)
 		if err != nil {
 			return nil, err
 		}
@@ -275,7 +285,7 @@ func (client *RClient) Upload(srcFilePath, desDirPath string, maxPacketSize int)
 		err     error
 	)
 
-	session, err = sftp.NewClient(client, sftp.MaxPacket(maxPacketSize))
+	session, err = sftp.NewClient(&client.Client, sftp.MaxPacket(maxPacketSize))
 	if err != nil {
 		return nil, err
 	}
@@ -322,7 +332,7 @@ func (client *RClient) Download(srcFilePath, desDirPath string, maxPacketSize in
 		err     error
 	)
 
-	session, err = sftp.NewClient(client, sftp.MaxPacket(maxPacketSize))
+	session, err = sftp.NewClient(&client.Client, sftp.MaxPacket(maxPacketSize))
 	if err != nil {
 		return nil, err
 	}
@@ -333,12 +343,12 @@ func (client *RClient) Download(srcFilePath, desDirPath string, maxPacketSize in
 			return nil, err
 		}
 	}
-	if err = os.Mkdir(path.Join(desDirPath, groupname), os.ModeDir|os.ModePerm); err != nil {
+	if err = os.Mkdir(path.Join(desDirPath, client.Groupname), os.ModeDir|os.ModePerm); err != nil {
 		if os.IsNotExist(err) {
 			return nil, err
 		}
 	}
-	if err = os.Mkdir(path.Join(path.Join(desDirPath, groupname), host), os.ModeDir|os.ModePerm); err != nil {
+	if err = os.Mkdir(path.Join(path.Join(desDirPath, client.Groupname), client.Host), os.ModeDir|os.ModePerm); err != nil {
 		if os.IsNotExist(err) {
 			return nil, err
 		}
@@ -355,7 +365,7 @@ func (client *RClient) Download(srcFilePath, desDirPath string, maxPacketSize in
 			if err != nil {
 				return nil, err
 			} else {
-				desFile, err := os.Create(path.Join(path.Join(path.Join(desDirPath, groupname), host), desFileName))
+				desFile, err := os.Create(path.Join(path.Join(path.Join(desDirPath, client.Groupname), client.Host), desFileName))
 				if err != nil {
 					return nil, err
 				}
