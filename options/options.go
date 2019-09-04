@@ -320,7 +320,7 @@ func parseHostgroups(hgs Hostgroups) Hostgroups {
 	}
 
 	for _, hg := range rethg.Hgs {
-		if hgmap[hg.Proxy].Groupname == "" {
+		if hg.Proxy != "" && hgmap[hg.Proxy].Groupname == "" {
 			log.Fatalf("Proxy Not found. Groups illegal [%s/%s].", hg.Groupname, hg.Proxy)
 		}
 	}
