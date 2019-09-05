@@ -108,7 +108,7 @@ func New() *Options {
 		prompt.AddHostgroup("-H" + key)
 	}
 
-	option := &Options{
+	option = &Options{
 		Cfg:               cfg,
 		Hostgroups:        hostgroups,
 		Hostgroupsm:       hostgroupsm,
