@@ -205,7 +205,7 @@ func (client *RClient) connect() (*ssh.Client, error) {
 	return sshClient, nil
 }
 
-func (client *RClient) DO (cmds []string) (string, string, error) {
+func (client *RClient)  DO (cmds []string, sudo bool) (string, string, error) {
 	var (
 		session *ssh.Session
 		stderr  bytes.Buffer
@@ -276,7 +276,7 @@ func (client *RClient) SUDO(cmds []string) (string, string, error) {
 		client.Sudotype = "su"
 	}
 
-	return client.DO(cmds)
+	return client.DO(cmds, true)
 }
 
 func (client *RClient) Upload(srcFilePath, desDirPath string, maxPacketSize int) ([]string, error) {
