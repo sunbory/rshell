@@ -100,7 +100,7 @@ func GetProxyConfig (hostname string) (*rclient.RConfig, error) {
 	return &rclient.RConfig {
 		Groupname  : hostname,
 		Host       : hg.Ips[0],
-		Port       : o.CurrentEnv.Port ,  
+		Port       : hg.Sshport,  
 		User       : au.Username,
 		Key        : au.Privatekey,
 		Password   : au.Password,
