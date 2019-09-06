@@ -6,13 +6,13 @@ import (
 	"net"
 	"strconv"
 	"time"
-    "path/filepath"
-    "io"
-    "bytes"
-    "os"
-    "runtime"
-    "path"
-    "strings"
+        "path/filepath"
+        "io"
+        "bytes"
+        "os"
+        "runtime"
+        "path"
+        "strings"
 
 	"github.com/luckywinds/rshell/pkg/checkers"
 	"github.com/patrickmn/go-cache"
@@ -84,7 +84,7 @@ func New(config *RConfig) (*RClient, error) {
 	if err != nil {
 		return nil, err
 	}
-    client.Client = *rst_client
+        client.Client = *rst_client
 
 	dialcache.Set(cachekey, client, cache.DefaultExpiration)
 	return client, nil
@@ -163,7 +163,7 @@ func (client *RClient) genSSHConfig () (*ssh.ClientConfig, error) {
 
 func (client *RClient) connect() (*ssh.Client, error) {
 	
-	var sshClient *ssh.Client
+    var sshClient *ssh.Client
     
     if client.Proxy != nil {
 
@@ -233,7 +233,7 @@ func (client *RClient)  DO (cmds []string, sudo bool) (string, string, error) {
 		return "", "", err
 	}
 
-	if client.Sudotype != "" {
+	if sudo == true {
 		fmt.Fprintf(stdin, "%s || exit 1\n", client.Sudotype)
 		time.Sleep(time.Millisecond * 100)
 		fmt.Fprintf(stdin, "%s\n", client.Sudopass)
