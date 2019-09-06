@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/luckywinds/rshell/types"
-    "github.com/luckywinds/rshell/options"
+        "github.com/luckywinds/rshell/options"
 	"github.com/luckywinds/rshell/outputs"
 	"github.com/luckywinds/rshell/pkg/checkers"
 	"github.com/luckywinds/rshell/pkg/crypt"
@@ -161,7 +161,7 @@ func RunSshCommands(cfg types.Cfg, actionname, actiontype string, au types.Auth,
 
 			switch actiontype {
 			case "do":
-				stdout, stderr, err = ssh.DO(cmds)
+				stdout, stderr, err = ssh.DO(cmds, false)
 			case "sudo":
 				stdout, stderr, err = ssh.SUDO(cmds)
 				stderr = strings.Replace(stderr, rconfig.Sudopass, "******", -1)
