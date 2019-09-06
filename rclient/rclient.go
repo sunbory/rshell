@@ -273,7 +273,7 @@ func (client *RClient) SUDO(cmds []string) (string, string, error) {
 		return "", "", fmt.Errorf("cmds[%v] empty", cmds)
 	}
 	if client.Sudotype == "" {
-		client.Sudotype = "su"
+		client.Sudotype = "su -"
 	}
 
 	return client.DO(cmds, true)
