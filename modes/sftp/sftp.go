@@ -56,7 +56,7 @@ func Upload(groupname, host string, port int, user, pass, keyname, passphrase st
 
 			_, err = io.Copy(desFile, srcFile)
 			if err != nil {
-				return nil, nil, errors.Wrap(err, "io.Copy return err")
+				return nil, errors.Wrap(err, "io.Copy return err")
 			}
 		}
 		return srcFiles, nil
