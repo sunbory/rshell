@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"github.com/pkg/errors"
 )
 
 func Upload(groupname, host string, port int, user, pass, keyname, passphrase string, ciphers []string, maxPacketSize int, srcFilePath, desDirPath string) ([]string, error) {
@@ -20,24 +21,24 @@ func Upload(groupname, host string, port int, user, pass, keyname, passphrase st
 
 	c, err := client.New(groupname, host, port, user, pass, keyname, passphrase, ciphers)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "client.New return err")
 	}
 
 	session, err = sftp.NewClient(c, sftp.MaxPacket(maxPacketSize))
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "sftp.NewClient return err")
 	}
 	defer session.Close()
 
 	srcFiles, err := filepath.Glob(srcFilePath)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "filepath.Glob return err")
 	}
 	if srcFiles != nil {
 		for _, sf := range srcFiles {
 			srcFile, err := os.Open(sf)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "os.Open return err")
 			}
 			defer srcFile.Close()
 
@@ -49,13 +50,13 @@ func Upload(groupname, host string, port int, user, pass, keyname, passphrase st
 			}
 			desFile, err := session.Create(path.Join(desDirPath, desFileName))
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "session.Create return err")
 			}
 			defer desFile.Close()
 
 			_, err = io.Copy(desFile, srcFile)
 			if err != nil {
-				return nil, err
+				return nil, nil, errors.Wrap(err, "io.Copy return err")
 			}
 		}
 		return srcFiles, nil
